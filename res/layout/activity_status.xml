@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <include
+        android:id="@+id/include1"
+        layout="@layout/home_list_item_full" >
+    </include>
+
+    <ListView
+        android:id="@+id/lv_comment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/include1"
+        android:layout_centerHorizontal="true" 
+          android:background="@color/white"
+        android:scrollbars="none"
+        android:divider="@color/bg_lighter_gray"
+        android:dividerHeight="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="3dp"
+        android:listSelector="@drawable/selector_home_list"
+          android:choiceMode="singleChoice"
+        android:drawSelectorOnTop="false"
+        android:stackFromBottom="false">
+
+    </ListView>
+
+</RelativeLayout>

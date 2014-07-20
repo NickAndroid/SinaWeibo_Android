@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginRight="160dp"
+    android:background="@color/bg_dark" >
+
+    <ListView
+        android:id="@+id/lv_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="180dp"
+        android:background="@color/bg_dark"
+        android:choiceMode="singleChoice"
+        android:divider="@color/bg_dark_tab"
+        android:dividerHeight="1dp"
+        android:listSelector="@color/holo_red_dark"
+        android:drawSelectorOnTop="false"
+        android:scrollbars="none"
+        android:stackFromBottom="false" >
+    </ListView>
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout1"
+        android:layout_width="88dp"
+        android:layout_height="88dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:background="@color/bg_dark_tab" >
+
+        <ImageView
+            android:id="@+id/iv_user_logo_hd"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/qq_recommend_empty_image" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/relativeLayout1"
+        android:layout_marginTop="10dp"
+        android:layout_centerHorizontal="true" >
+
+        <TextView
+            android:id="@+id/tv_user_name_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:textSize="16dp"
+            android:text="同步中..." />
+
+        <ImageView
+            android:id="@+id/iv_user_gender_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/tv_user_name_menu"
+            android:src="@drawable/userinfo_icon_male" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

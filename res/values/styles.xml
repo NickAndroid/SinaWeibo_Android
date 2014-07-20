@@ -1,0 +1,33 @@
+<resources>
+
+
+    <!-- Application theme. -->
+    <style name="AppTheme" parent="AppBaseTheme">
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    </style>
+    
+    
+      <style name="tab_item">
+        <item name="android:gravity">center_horizontal</item>  
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:button">@null</item>         
+        <item name="android:drawablePadding">5dip</item>
+        <item name="android:layout_weight">1.0</item>
+        <item name="android:background">@color/white</item>
+        
+        <item name="android:textSize">10.0dip</item>
+        <item name="android:textColor">#ffffffff</item>
+        <item name="android:ellipsize">marquee</item>       
+        <item name="android:singleLine">true</item>
+    </style>
+    
+      <style name="myProgressBarStyle" >
+　　<item name="android:indeterminateDrawable">@drawable/progress_bar</item>
+　　<item name="android:minWidth">24dip</item>
+　　<item name="android:maxWidth">24dip</item>
+　　<item name="android:minHeight">24dip</item>
+　　<item name="android:maxHeight">24dip</item>
+</style>
+
+</resources>

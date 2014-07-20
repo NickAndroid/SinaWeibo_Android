@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <TextView
+        android:id="@+id/tv_user_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:gravity="center"
+        android:singleLine="true"
+        android:text="syncing..."
+        android:textColor="@color/lighter_gray"
+        android:textSize="17sp" />
+
+    <ImageView
+        android:id="@+id/iv_action_camera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="8dp"
+        android:src="@drawable/common_icon_more" />
+
+    <ProgressBar
+        android:id="@+id/pb_action_circle"
+        style="@style/myProgressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:layout_alignBottom="@+id/iv_action_gally"
+        android:layout_marginRight="12dp"
+        android:layout_toLeftOf="@+id/iv_action_gally"
+        android:indeterminateDuration="700" />
+
+    <ImageView
+        android:id="@+id/iv_new_dot"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="45dp"
+        android:layout_toLeftOf="@+id/pb_action_circle"
+        android:src="@drawable/new_dot" />
+
+    <ImageView
+        android:id="@+id/ImageView01"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+         android:visibility="invisible"
+        android:src="@drawable/new_dot" />
+
+    <ImageView
+        android:id="@+id/iv_action_gally"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="8dp"
+        android:layout_toLeftOf="@+id/ImageView01"
+        android:src="@drawable/icon_post" />
+
+</RelativeLayout>
