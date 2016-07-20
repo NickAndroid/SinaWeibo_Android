@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:baselineAligned="false"
+    android:background="@color/white" >
+
+    <ListView
+        android:id="@+id/lv_pop"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:scrollbars="none"
+        android:divider="@color/bg_lighter_gray"
+        android:dividerHeight="1dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="3dp"
+        android:listSelector="@drawable/selector_home_list"
+        android:padding="3dp"
+        android:layout_weight="1" >
+    </ListView>
+
+</LinearLayout>

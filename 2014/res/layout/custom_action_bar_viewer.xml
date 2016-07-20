@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <ImageView
+        android:id="@+id/iv_action_download"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="12dp"
+        android:src="@drawable/qq_aio_icon_save_normal" />
+
+    <ImageView
+        android:id="@+id/iv_action_back"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="8dp"
+        android:src="@drawable/ie_arrow_normal" />
+
+    <ProgressBar
+        android:id="@+id/pb_action_circle"
+        style="@style/myProgressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/iv_action_download"
+        android:layout_marginRight="12dp"
+        android:layout_toLeftOf="@+id/iv_action_download"
+        android:indeterminateDuration="700" />
+
+    <TextView
+        android:id="@+id/tv_image_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:textColor="@color/lighter_gray"
+        android:text="努力加载中..." />
+
+</RelativeLayout>

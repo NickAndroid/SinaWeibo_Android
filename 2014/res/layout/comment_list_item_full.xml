@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="4dp" >
+
+        <com.bpok.sina.view.RoundCornerImageView
+            android:id="@+id/iv_poster_avatar"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="4dp"
+            android:layout_marginTop="3dp"
+            android:background="@null" />
+
+        <TextView
+            android:id="@+id/tv_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="7dp"
+            android:layout_marginTop="25dp"
+            android:layout_toRightOf="@+id/iv_poster_avatar"
+            android:text="post_body"
+            android:textColor="@color/lighter_gray"
+            android:textSize="14dp" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/iv_poster_avatar" >
+
+            <TextView
+                android:id="@+id/tv_poster_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="5dp"
+                android:layout_toLeftOf="@+id/tv_post_time"
+                android:singleLine="true"
+                android:text="poster_name"
+                android:textColor="@color/lighter_gray"
+                android:textSize="15dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_post_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginRight="6dp"
+                android:singleLine="true"
+                android:text="poster_time"
+                android:textColor="@color/lighter_gray"
+                android:textSize="12sp" />
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="122dp"
+        android:background="@color/white" >
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/relativeLayout1"
+        android:layout_marginLeft="60dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginRight="5dp"
+        android:background="@color/bg_lighter_gray" >
+
+        <TextView
+            android:id="@+id/tv_repost_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="5dp"
+            android:singleLine="true"
+            android:text="poster_name"
+            android:textColor="@color/lighter_gray"
+            android:textSize="15dp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_repost_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/tv_repost_name"
+            android:layout_marginLeft="5dp"
+            android:text="post_body"
+            android:textColor="@color/lighter_gray"
+            android:textSize="14dp" />
+
+        <ImageView
+            android:id="@+id/iv_status_img"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_repost_text"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="4dp"
+            android:background="@color/white"
+            android:src="@drawable/aio_image_default_round"
+            android:visibility="visible" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:layout_below="@+id/relativeLayout3"
+        android:background="@color/white"
+        android:layout_centerHorizontal="true" >
+    </RelativeLayout>
+
+</RelativeLayout>
