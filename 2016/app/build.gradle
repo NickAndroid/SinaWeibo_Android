@@ -25,5 +25,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:24.1.0'
     compile 'com.nick.scalpel:scalpel:1.0.7'
     compile 'dev.nick:imageloader:0.9@aar'
+    compile 'com.roughike:bottom-bar:1.4.0.1'
     compile project(':weibo_sdk')
 }

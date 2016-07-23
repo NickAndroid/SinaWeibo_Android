@@ -17,11 +17,8 @@
 package nick.dev.sina.app.content;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 
 import com.nick.scalpel.ScalpelAutoActivity;
@@ -82,7 +79,7 @@ public class LoginActivity extends ScalpelAutoActivity {
     }
 
     void onAuthTokenValid() {
-        startActivity(new Intent(this, MainActivity.class));
+        startActivity(new Intent(this, NavigatorActivity.class));
     }
 
     @Override

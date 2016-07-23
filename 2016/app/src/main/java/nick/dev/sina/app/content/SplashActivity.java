@@ -21,6 +21,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.Toolbar;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -84,14 +85,20 @@ public class SplashActivity extends ScalpelAutoActivity {
             @Override
             public void run() {
                 if (mAccessToken.isSessionValid()) {
-                    startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                    startActivity(new Intent(SplashActivity.this, NavigatorActivity.class));
                 } else {
                     startActivity(new Intent(SplashActivity.this, LoginActivity.class));
                 }
                 finish();
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
-        }, 3000);
+        }, 1000);
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mHandler.removeCallbacksAndMessages(null);
     }
 }
