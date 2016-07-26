@@ -19,7 +19,6 @@ package nick.dev.sina.app.content;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.TextViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -27,6 +26,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextSwitcher;
 import android.widget.TextView;
 
 import com.nick.scalpel.Scalpel;
@@ -45,11 +45,13 @@ import dev.nick.imageloader.display.DisplayOption;
 import dev.nick.imageloader.display.animator.FadeInImageAnimator;
 import dev.nick.logger.Logger;
 import nick.dev.sina.R;
+import nick.dev.sina.app.SinaApp;
+import nick.dev.sina.app.annotation.RetrieveApp;
 import nick.dev.sina.app.annotation.RetrieveLogger;
 import nick.dev.sina.sdk.AccessTokenKeeper;
 import nick.dev.sina.sdk.SdkConfig;
 
-public class BaseFragment extends Fragment {
+public class MessageFragment extends Fragment {
 
     @FindView(id = R.id.recycler_view)
     RecyclerView mRecyclerView;
@@ -59,6 +61,9 @@ public class BaseFragment extends Fragment {
 
     @RetrieveLogger
     Logger mLogger;
+
+    @RetrieveApp
+    SinaApp mApp;
 
     StatusList mStatusList;
 
@@ -77,13 +82,18 @@ public class BaseFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        initStatusApi();
+        mApp.getSharedMainThreadHandler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                initStatusApi();
+            }
+        }, 2000);
     }
 
     void initStatusApi() {
         mAccessToken = AccessTokenKeeper.readAccessToken(getActivity());
         mStatusesAPI = new StatusesAPI(getActivity(), SdkConfig.APP_KEY, mAccessToken);
-        mStatusesAPI.friendsTimeline(0L, 0L, 50, 1, false, 0, false, mListener);
+        mStatusesAPI.mentions(0L, 0L, 100, 1, 0, 0, 0, false, mListener);
     }
 
     private void createAdapter() {
@@ -96,9 +106,6 @@ public class BaseFragment extends Fragment {
         mRecyclerView.smoothScrollToPosition(0);
     }
 
-    /**
-     * 微博 OpenAPI 回调接口。
-     */
     private RequestListener mListener = new RequestListener() {
         @Override
         public void onComplete(String response) {
@@ -152,6 +159,16 @@ public class BaseFragment extends Fragment {
             } else {
                 holder.feedImageView.setVisibility(View.GONE);
             }
+            holder.likesCntView.setText(String.valueOf(item.attitudes_count));
+            holder.likesCntView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    TextSwitcher switcher = (TextSwitcher) view;
+                    switcher.setText(String.valueOf(item.attitudes_count + 1));
+                }
+            });
+            holder.commentCntView.setText(String.valueOf(item.comments_count));
+            holder.repostCntView.setText(String.valueOf(item.reposts_count));
         }
 
         @Override
@@ -170,6 +187,12 @@ public class BaseFragment extends Fragment {
         TextView feedText;
         @FindView(id = R.id.user_profile_name)
         TextView userNameView;
+        @FindView(id = R.id.likes_cnt)
+        TextSwitcher likesCntView;
+        @FindView(id = R.id.repost_cnt)
+        TextView repostCntView;
+        @FindView(id = R.id.comment_cnt)
+        TextView commentCntView;
 
         public FeedViewHolder(final View itemView) {
             super(itemView);

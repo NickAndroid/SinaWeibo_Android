@@ -92,7 +92,7 @@ public class SplashActivity extends ScalpelAutoActivity {
                 finish();
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
-        }, 1000);
+        }, 300);
 
     }
 

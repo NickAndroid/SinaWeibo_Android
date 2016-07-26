@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--drawable/btn_feed_action.xml-->
-<selector xmlns:android="http://schemas.android.com/apk/res/android" android:enterFadeDuration="200" android:exitFadeDuration="200">
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:enterFadeDuration="100" android:exitFadeDuration="100">
     <item android:state_pressed="false">
         <shape android:shape="oval">
             <solid android:color="@android:color/transparent" />
@@ -8,7 +9,7 @@
     </item>
     <item android:state_pressed="true">
         <shape android:shape="oval">
-            <solid android:color="@color/accent" />
+            <solid android:color="@color/primary_light" />
         </shape>
     </item>
 </selector>

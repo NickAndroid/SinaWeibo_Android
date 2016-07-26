@@ -24,7 +24,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:24.1.0'
     compile 'com.nick.scalpel:scalpel:1.0.7'
-    compile 'dev.nick:imageloader:0.9@aar'
+    compile 'dev.nick:imageloader:1.0.0@aar'
     compile 'com.roughike:bottom-bar:1.4.0.1'
     compile 'com.android.support:cardview-v7:24.1.0'
     compile 'com.android.support:gridlayout-v7:24.1.0'

@@ -16,9 +16,4 @@
   -->
 
 <resources>
-    <integer name="tab_id_0">0</integer>
-    <integer name="tab_id_1">1</integer>
-    <integer name="tab_id_2">2</integer>
-    <integer name="tab_id_3">3</integer>
-    <integer name="tab_id_4">4</integer>
 </resources>

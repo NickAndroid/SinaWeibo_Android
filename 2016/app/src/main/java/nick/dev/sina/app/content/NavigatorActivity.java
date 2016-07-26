@@ -16,14 +16,15 @@
 
 package nick.dev.sina.app.content;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.ContextCompatApi24;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.SparseIntArray;
 
 import com.nick.scalpel.Scalpel;
 import com.nick.scalpel.annotation.binding.FindView;
@@ -32,9 +33,9 @@ import com.roughike.bottombar.OnMenuTabClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import nick.dev.sina.R;
+import nick.dev.sina.app.widget.ColorUtils;
 
 public class NavigatorActivity extends AppCompatActivity {
 
@@ -56,10 +57,7 @@ public class NavigatorActivity extends AppCompatActivity {
             R.color.tab_5,
     };
 
-    class TabParams {
-        int id;
-        int colorIdRes;
-    }
+    SparseIntArray idMap = new SparseIntArray();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,8 +77,12 @@ public class NavigatorActivity extends AppCompatActivity {
         mBottomBar.setOnMenuTabClickListener(new OnMenuTabClickListener() {
             @Override
             public void onMenuTabSelected(@IdRes int menuItemId) {
-                mController.setCurrent(new Random(1000).nextInt(4));
-                mToolbar.setBackgroundColor(ContextCompat.getColor(NavigatorActivity.this, mColors[new Random(1000).nextInt(4)]));
+                mController.setCurrent(idMap.get(menuItemId));
+                int themedColor = ContextCompat.getColor(NavigatorActivity.this, mColors[idMap.get(menuItemId)]);
+                mToolbar.setBackgroundColor(themedColor);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    getWindow().setStatusBarColor(ColorUtils.colorBurn(themedColor));
+                }
             }
 
             @Override
@@ -89,24 +91,25 @@ public class NavigatorActivity extends AppCompatActivity {
             }
         });
 
-        mapColorForTab(0);
-        mapColorForTab(1);
-        mapColorForTab(2);
-        mapColorForTab(3);
-        mapColorForTab(4);
+        mapColorForTab(R.id.nav_status, 0);
+        mapColorForTab(R.id.nav_message,1);
+        mapColorForTab(R.id.nav_hot,2);
+        mapColorForTab(R.id.nav_me,3);
+        mapColorForTab(R.id.nav_config,4);
     }
 
-    void mapColorForTab(int index) {
+    void mapColorForTab(int id, int index) {
+        idMap.put(id, index);
         mBottomBar.mapColorForTab(index, ContextCompat.getColor(this, mColors[index]));
     }
 
     private void initPages() {
         List<Fragment> fragments = new ArrayList<>(4);
-        fragments.add(new BaseFragment());
-        fragments.add(new BaseFragment());
-        fragments.add(new BaseFragment());
-        fragments.add(new BaseFragment());
-        fragments.add(new BaseFragment());
+        fragments.add(new StatusFragment());
+        fragments.add(new StatusFragment());
+        fragments.add(new StatusFragment());
+        fragments.add(new StatusFragment());
+        fragments.add(new StatusFragment());
         mController = new FragmentController(getSupportFragmentManager(), fragments);
     }
 }

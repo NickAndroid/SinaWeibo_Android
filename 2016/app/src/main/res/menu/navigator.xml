@@ -18,23 +18,23 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@integer/tab_id_0"
-        android:icon="@drawable/ic_home_black_24dp"
-        android:title="Recents" />
+        android:id="@+id/nav_status"
+        android:icon="@drawable/ic_whatshot_black_24dp"
+        android:title="@string/tab_title_status" />
     <item
-        android:id="@integer/tab_id_1"
-        android:icon="@drawable/ic_cake_black_24dp"
-        android:title="Favorites" />
+        android:id="@+id/nav_message"
+        android:icon="@drawable/ic_mail_outline_black_24dp"
+        android:title="@string/tab_title_message" />
     <item
-        android:id="@integer/tab_id_2"
+        android:id="@+id/nav_hot"
         android:icon="@drawable/ic_account_circle_black_24dp"
         android:title="Nearby" />
     <item
-        android:id="@integer/tab_id_3"
+        android:id="@+id/nav_me"
         android:icon="@drawable/ic_person_black_24dp"
         android:title="Friends" />
     <item
-        android:id="@integer/tab_id_4"
+        android:id="@+id/nav_config"
         android:icon="@drawable/ic_whatshot_black_24dp"
         android:title="Food" />
 </menu>

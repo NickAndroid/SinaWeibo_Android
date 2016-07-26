@@ -17,14 +17,17 @@
 package nick.dev.sina.app;
 
 import android.app.Activity;
+import android.app.Application;
 import android.app.Service;
 import android.content.Context;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.View;
 
 import com.nick.scalpel.Scalpel;
 import com.nick.scalpel.ScalpelApplication;
+import com.nick.scalpel.annotation.binding.MainThreadHandler;
 import com.nick.scalpel.core.FieldWirer;
 import com.nick.scalpel.core.utils.ReflectionUtils;
 
@@ -32,15 +35,27 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
 import dev.nick.imageloader.ImageLoader;
+import dev.nick.imageloader.LoaderConfig;
+import dev.nick.imageloader.cache.CachePolicy;
+import dev.nick.imageloader.loader.network.NetworkPolicy;
 import dev.nick.logger.LoggerManager;
-import nick.dev.sina.BuildConfig;
+import nick.dev.sina.app.annotation.RetrieveApp;
 import nick.dev.sina.app.annotation.RetrieveLogger;
 
 public class SinaApp extends ScalpelApplication {
+
+    @MainThreadHandler
+    private Handler mSharedMainThreadHandler;
+
     @Override
     public void onCreate() {
         super.onCreate();
-        ImageLoader.init(this);
+        ImageLoader.init(this, new LoaderConfig.Builder()
+                .cachePolicy(CachePolicy.DEFAULT_CACHE_POLICY)
+                .networkPolicy(new NetworkPolicy.Builder()
+                        .build())
+                .loadingThreads(Runtime.getRuntime().availableProcessors())
+                .build());
         LoggerManager.setTagPrefix(getClass().getSimpleName());
         LoggerManager.setDebugLevel(Log.WARN);
     }
@@ -49,6 +64,54 @@ public class SinaApp extends ScalpelApplication {
     protected void onConfigScalpel(Scalpel scalpel) {
         super.onConfigScalpel(scalpel);
         scalpel.addFieldWirer(new LoggerWirer());
+        scalpel.addFieldWirer(new AppWirer(this));
+        scalpel.wire(getApplicationContext(), this);
+    }
+
+    public Handler getSharedMainThreadHandler() {
+        return mSharedMainThreadHandler;
+    }
+
+    class AppWirer implements FieldWirer {
+
+        Application mApp;
+
+        public AppWirer(Application application) {
+            this.mApp = application;
+        }
+
+        @Override
+        public Class<? extends Annotation> annotationClass() {
+            return RetrieveApp.class;
+        }
+
+        @Override
+        public void wire(Activity activity, Field field) {
+            wire(activity.getApplicationContext(), activity, field);
+        }
+
+        @Override
+        public void wire(Fragment fragment, Field field) {
+            wire(fragment.getActivity().getApplicationContext(), fragment, field);
+        }
+
+        @Override
+        public void wire(Service service, Field field) {
+            wire(service.getApplicationContext(), service, field);
+        }
+
+        @Override
+        public void wire(Context context, Object object, Field field) {
+            ReflectionUtils.makeAccessible(field);
+            Object fieldObject = ReflectionUtils.getField(field, object);
+            if (fieldObject != null) return;
+            ReflectionUtils.setField(field, object, this.mApp);
+        }
+
+        @Override
+        public void wire(View root, Object object, Field field) {
+            wire(root.getContext(), object, field);
+        }
     }
 
     class LoggerWirer implements FieldWirer {

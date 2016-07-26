@@ -31,6 +31,7 @@
                 android:id="@+id/user_profile_name"
                 android:layout_toEndOf="@+id/user_profile_img"
                 android:textColor="@color/primary_text"
+                android:textStyle="bold"
                 android:layout_centerVertical="true"
                 android:padding="3dp"
                 android:layout_marginStart="5dp"
@@ -61,29 +62,38 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="8dp"
             android:paddingRight="8dp">
 
             <ImageButton
                 android:id="@+id/button_like"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:background="@drawable/btn_feed_action"
                 android:src="@drawable/ic_heart_outline_grey" />
 
-            <ImageButton
-                android:id="@+id/button_comment"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="@drawable/btn_feed_action"
-                android:src="@drawable/ic_comment_outline_grey" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/repost_cnt"
+                android:layout_gravity="center_vertical"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
+                android:textColor="@color/secondary_text" />
 
             <ImageButton
-                android:id="@+id/button_more"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:id="@+id/button_comment"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginLeft="8dp"
                 android:background="@drawable/btn_feed_action"
-                android:src="@drawable/ic_more_grey" />
+                android:src="@drawable/ic_comment_outline_grey"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/comment_cnt"
+                android:layout_gravity="center_vertical"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
+                android:textColor="@color/secondary_text" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -94,7 +104,7 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_heart_small_blue" />
+                    android:src="@drawable/ic_heart_outline_grey" />
 
                 <TextSwitcher
                     android:id="@+id/likes_cnt"
@@ -108,13 +118,12 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="123 likes"
-                        android:textColor="@color/accent" />
+                        android:textColor="@color/secondary_text" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/accent" />
+                        android:textColor="@color/secondary_text" />
                 </TextSwitcher>
             </LinearLayout>
         </LinearLayout>
