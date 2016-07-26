@@ -42,7 +42,7 @@ public class SinaApp extends ScalpelApplication {
         super.onCreate();
         ImageLoader.init(this);
         LoggerManager.setTagPrefix(getClass().getSimpleName());
-        LoggerManager.setDebugLevel(BuildConfig.DEBUG ? Log.VERBOSE : Log.WARN);
+        LoggerManager.setDebugLevel(Log.WARN);
     }
 
     @Override

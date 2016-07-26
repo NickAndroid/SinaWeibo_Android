@@ -18,11 +18,14 @@ package nick.dev.sina.app.content;
 
 import android.os.Bundle;
 import android.support.annotation.IdRes;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.ContextCompatApi24;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
+import com.nick.scalpel.Scalpel;
 import com.nick.scalpel.annotation.binding.FindView;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnMenuTabClickListener;
@@ -42,24 +45,42 @@ public class NavigatorActivity extends AppCompatActivity {
 
     FragmentController mController;
 
+    @FindView(id = R.id.coordinator)
+    CoordinatorLayout mCoordinator;
+
+    int[] mColors = new int[]{
+            R.color.tab_1,
+            R.color.tab_2,
+            R.color.tab_3,
+            R.color.tab_4,
+            R.color.tab_5,
+    };
+
+    class TabParams {
+        int id;
+        int colorIdRes;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_navigator);
 
+        Scalpel.getInstance().wire(this);
+
         setSupportActionBar(mToolbar);
 
         initPages();
 
-        mBottomBar = BottomBar.attach(this, savedInstanceState);
+        mBottomBar = BottomBar.attachShy(mCoordinator, findViewById(R.id.container), savedInstanceState);
         mBottomBar.noTopOffset();
         mBottomBar.setItems(R.menu.navigator);
         mBottomBar.setOnMenuTabClickListener(new OnMenuTabClickListener() {
             @Override
             public void onMenuTabSelected(@IdRes int menuItemId) {
                 mController.setCurrent(new Random(1000).nextInt(4));
-                setTitle(mController.getCurrent().getClass().getSimpleName());
+                mToolbar.setBackgroundColor(ContextCompat.getColor(NavigatorActivity.this, mColors[new Random(1000).nextInt(4)]));
             }
 
             @Override
@@ -68,13 +89,15 @@ public class NavigatorActivity extends AppCompatActivity {
             }
         });
 
-        // Setting colors for different tabs when there's more than three of them.
-        // You can set colors for tabs in three different ways as shown below.
-        mBottomBar.mapColorForTab(0, ContextCompat.getColor(this, R.color.accent));
-        mBottomBar.mapColorForTab(1, 0xFF5D4037);
-        mBottomBar.mapColorForTab(2, "#7B1FA2");
-        mBottomBar.mapColorForTab(3, "#FF5252");
-        mBottomBar.mapColorForTab(4, "#FF9800");
+        mapColorForTab(0);
+        mapColorForTab(1);
+        mapColorForTab(2);
+        mapColorForTab(3);
+        mapColorForTab(4);
+    }
+
+    void mapColorForTab(int index) {
+        mBottomBar.mapColorForTab(index, ContextCompat.getColor(this, mColors[index]));
     }
 
     private void initPages() {
