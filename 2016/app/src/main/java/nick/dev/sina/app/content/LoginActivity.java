@@ -32,6 +32,7 @@ import com.sina.weibo.sdk.exception.WeiboException;
 
 import dev.nick.logger.Logger;
 import nick.dev.sina.R;
+import nick.dev.sina.app.annotation.CalledByScalpel;
 import nick.dev.sina.app.annotation.RetrieveLogger;
 import nick.dev.sina.sdk.AccessTokenKeeper;
 import nick.dev.sina.sdk.SdkConfig;
@@ -59,14 +60,8 @@ public class LoginActivity extends ScalpelAutoActivity {
     void initAuth() {
         AuthInfo mAuthInfo = new AuthInfo(this, SdkConfig.APP_KEY, SdkConfig.REDIRECT_URL, SdkConfig.SCOPE);
         mSsoHandler = new SsoHandler(this, mAuthInfo);
-
         mAccessToken = AccessTokenKeeper.readAccessToken(this);
-
         mLogger.debug(mAccessToken);
-
-        if (mAccessToken.isSessionValid()) {
-
-        }
     }
 
     @Override
@@ -74,20 +69,19 @@ public class LoginActivity extends ScalpelAutoActivity {
         super.onStart();
     }
 
+    @CalledByScalpel
     void onRequestLogin() {
         mSsoHandler.authorize(new AuthListener());
     }
 
     void onAuthTokenValid() {
         startActivity(new Intent(this, NavigatorActivity.class));
+        finish();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        // SSO 授权回调
-        // 重要：发起 SSO 登陆的 Activity 必须重写 onActivityResults
         if (mSsoHandler != null) {
             mSsoHandler.authorizeCallBack(requestCode, resultCode, data);
         }

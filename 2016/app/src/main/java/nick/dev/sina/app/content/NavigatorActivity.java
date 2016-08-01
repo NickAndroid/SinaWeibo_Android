@@ -16,11 +16,11 @@
 
 package nick.dev.sina.app.content;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -34,17 +34,20 @@ import com.roughike.bottombar.OnMenuTabClickListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.nick.logger.Logger;
 import nick.dev.sina.R;
+import nick.dev.sina.app.annotation.RetrieveLogger;
 import nick.dev.sina.app.widget.ColorUtils;
+import nick.dev.sina.sdk.AuthHelper;
 
-public class NavigatorActivity extends AppCompatActivity {
+public class NavigatorActivity extends AppCompatActivity implements TransactionManager {
+
+    final List<TransactionListener> transactionListeners = new ArrayList<>();
 
     BottomBar mBottomBar;
 
     @FindView(id = R.id.toolbar)
     Toolbar mToolbar;
-
-    FragmentController mController;
 
     @FindView(id = R.id.coordinator)
     CoordinatorLayout mCoordinator;
@@ -57,17 +60,33 @@ public class NavigatorActivity extends AppCompatActivity {
             R.color.tab_5,
     };
 
+    FragmentController mController;
+
     SparseIntArray idMap = new SparseIntArray();
+
+    @RetrieveLogger
+    Logger mLogger;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (!AuthHelper.sessionValid(this)) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }
 
         setContentView(R.layout.activity_navigator);
 
         Scalpel.getInstance().wire(this);
 
         setSupportActionBar(mToolbar);
+
+        initUI(savedInstanceState);
+    }
+
+    void initUI(Bundle savedInstanceState) {
 
         initPages();
 
@@ -77,7 +96,17 @@ public class NavigatorActivity extends AppCompatActivity {
         mBottomBar.setOnMenuTabClickListener(new OnMenuTabClickListener() {
             @Override
             public void onMenuTabSelected(@IdRes int menuItemId) {
-                mController.setCurrent(idMap.get(menuItemId));
+                TransactionSafeFragment from = mController.getCurrent();
+                int toId = idMap.get(menuItemId);
+                mController.setCurrent(toId);
+                TransactionSafeFragment to = mController.getCurrent();
+
+                synchronized (transactionListeners) {
+                    for (TransactionListener listener : transactionListeners) {
+                        listener.onFragmentTransaction(from, to);
+                    }
+                }
+
                 int themedColor = ContextCompat.getColor(NavigatorActivity.this, mColors[idMap.get(menuItemId)]);
                 mToolbar.setBackgroundColor(themedColor);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -92,10 +121,10 @@ public class NavigatorActivity extends AppCompatActivity {
         });
 
         mapColorForTab(R.id.nav_status, 0);
-        mapColorForTab(R.id.nav_message,1);
-        mapColorForTab(R.id.nav_hot,2);
-        mapColorForTab(R.id.nav_me,3);
-        mapColorForTab(R.id.nav_config,4);
+        mapColorForTab(R.id.nav_message, 1);
+        mapColorForTab(R.id.nav_hot, 2);
+        mapColorForTab(R.id.nav_me, 3);
+        mapColorForTab(R.id.nav_config, 4);
     }
 
     void mapColorForTab(int id, int index) {
@@ -104,12 +133,29 @@ public class NavigatorActivity extends AppCompatActivity {
     }
 
     private void initPages() {
-        List<Fragment> fragments = new ArrayList<>(4);
+        List<TransactionSafeFragment> fragments = new ArrayList<>(4);
         fragments.add(new StatusFragment());
         fragments.add(new StatusFragment());
         fragments.add(new StatusFragment());
         fragments.add(new StatusFragment());
         fragments.add(new StatusFragment());
         mController = new FragmentController(getSupportFragmentManager(), fragments);
+    }
+
+
+    @Override
+    public void registerTransactionListener(TransactionListener listener) {
+        mLogger.debug(listener);
+        synchronized (transactionListeners) {
+            transactionListeners.add(listener);
+        }
+    }
+
+    @Override
+    public void unRegisterTransactionListener(TransactionListener listener) {
+        mLogger.debug(listener);
+        synchronized (transactionListeners) {
+            transactionListeners.remove(listener);
+        }
     }
 }

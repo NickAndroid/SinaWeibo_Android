@@ -27,14 +27,14 @@ import nick.dev.sina.R;
 
 public class FragmentController {
 
-    List<Fragment> mPages;
+    List<TransactionSafeFragment> mPages;
     FragmentManager mFragmentManager;
 
-    Fragment mCurrent;
+    TransactionSafeFragment mCurrent;
 
     int mDefIndex = 0;
 
-    public FragmentController(FragmentManager mFragmentManager, List<Fragment> mPages) {
+    public FragmentController(FragmentManager mFragmentManager, List<TransactionSafeFragment> mPages) {
         this.mFragmentManager = mFragmentManager;
         this.mPages = mPages;
         init();
@@ -57,7 +57,7 @@ public class FragmentController {
         mDefIndex = index;
     }
 
-    public Fragment getCurrent() {
+    public TransactionSafeFragment getCurrent() {
         return mCurrent == null ? mPages.get(mDefIndex) : mCurrent;
     }
 
@@ -66,8 +66,9 @@ public class FragmentController {
         FragmentManager fragmentManager = mFragmentManager;
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.hide(getCurrent());
-        transaction.show(mPages.get(index));
+        TransactionSafeFragment current = mPages.get(index);
+        transaction.show(current);
         transaction.commitAllowingStateLoss();
-        mCurrent = mPages.get(index);
+        mCurrent = current;
     }
 }
