@@ -27,19 +27,27 @@ import android.support.v7.widget.Toolbar;
 import android.util.SparseIntArray;
 
 import com.nick.scalpel.Scalpel;
+import com.nick.scalpel.annotation.binding.FindIntArray;
 import com.nick.scalpel.annotation.binding.FindView;
+import com.nick.scalpel.annotation.opt.RetrieveBean;
+import com.nick.scalpel.annotation.request.RequirePermission;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnMenuTabClickListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import dev.nick.logger.Logger;
 import nick.dev.sina.R;
 import nick.dev.sina.app.annotation.RetrieveLogger;
+import nick.dev.sina.app.provider.SettingsProvider;
+import nick.dev.sina.app.provider.ThemeProvider;
 import nick.dev.sina.app.widget.ColorUtils;
 import nick.dev.sina.sdk.AuthHelper;
 
+@RequirePermission
 public class NavigatorActivity extends AppCompatActivity implements TransactionManager {
 
     final List<TransactionListener> transactionListeners = new ArrayList<>();
@@ -52,20 +60,21 @@ public class NavigatorActivity extends AppCompatActivity implements TransactionM
     @FindView(id = R.id.coordinator)
     CoordinatorLayout mCoordinator;
 
-    int[] mColors = new int[]{
-            R.color.tab_1,
-            R.color.tab_2,
-            R.color.tab_3,
-            R.color.tab_4,
-            R.color.tab_5,
-    };
+    @FindIntArray(id = R.array.tab_colors)
+    int[] mColors;
 
     FragmentController mController;
 
-    SparseIntArray idMap = new SparseIntArray();
+    Map<Integer, Integer> idMap = new HashMap();
 
     @RetrieveLogger
     Logger mLogger;
+
+    @RetrieveBean(id = R.id.settings_provider)
+    SettingsProvider mSettingsProvider;
+
+    @RetrieveBean(id = R.id.theme_provider)
+    ThemeProvider mThemeProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,38 +102,44 @@ public class NavigatorActivity extends AppCompatActivity implements TransactionM
         mBottomBar = BottomBar.attachShy(mCoordinator, findViewById(R.id.container), savedInstanceState);
         mBottomBar.noTopOffset();
         mBottomBar.setItems(R.menu.navigator);
-        mBottomBar.setOnMenuTabClickListener(new OnMenuTabClickListener() {
-            @Override
-            public void onMenuTabSelected(@IdRes int menuItemId) {
-                TransactionSafeFragment from = mController.getCurrent();
-                int toId = idMap.get(menuItemId);
-                mController.setCurrent(toId);
-                TransactionSafeFragment to = mController.getCurrent();
-
-                synchronized (transactionListeners) {
-                    for (TransactionListener listener : transactionListeners) {
-                        listener.onFragmentTransaction(from, to);
-                    }
-                }
-
-                int themedColor = ContextCompat.getColor(NavigatorActivity.this, mColors[idMap.get(menuItemId)]);
-                mToolbar.setBackgroundColor(themedColor);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    getWindow().setStatusBarColor(ColorUtils.colorBurn(themedColor));
-                }
-            }
-
-            @Override
-            public void onMenuTabReSelected(@IdRes int menuItemId) {
-
-            }
-        });
+//        mBottomBar.setOnMenuTabClickListener(new OnMenuTabClickListener() {
+//            @Override
+//            public void onMenuTabSelected(@IdRes int menuItemId) {
+//                TransactionSafeFragment from = mController.getCurrent();
+//                int toId = idMap.get(menuItemId);
+//                mController.setCurrent(toId);
+//                TransactionSafeFragment to = mController.getCurrent();
+//
+//                synchronized (transactionListeners) {
+//                    for (TransactionListener listener : transactionListeners) {
+//                        listener.onFragmentTransaction(from, to);
+//                    }
+//                }
+//
+//                int themedColor = ContextCompat.getColor(NavigatorActivity.this, mColors[idMap.get(menuItemId)]);
+//
+//                mToolbar.setBackgroundColor(themedColor);
+//
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//                    getWindow().setStatusBarColor(ColorUtils.colorBurn(themedColor));
+//                }
+//            }
+//
+//            @Override
+//            public void onMenuTabReSelected(@IdRes int menuItemId) {
+//
+//            }
+//        });
 
         mapColorForTab(R.id.nav_status, 0);
         mapColorForTab(R.id.nav_message, 1);
         mapColorForTab(R.id.nav_hot, 2);
         mapColorForTab(R.id.nav_me, 3);
         mapColorForTab(R.id.nav_config, 4);
+
+        mThemeProvider.inflateTabColorMap(idMap);
+
+        mBottomBar.selectTabAtPosition(mSettingsProvider.getLastTabIndex(), false);
     }
 
     void mapColorForTab(int id, int index) {
@@ -140,6 +155,7 @@ public class NavigatorActivity extends AppCompatActivity implements TransactionM
         fragments.add(new StatusFragment());
         fragments.add(new StatusFragment());
         mController = new FragmentController(getSupportFragmentManager(), fragments);
+        mController.setDefaultIndex(mSettingsProvider.getLastTabIndex());
     }
 
 

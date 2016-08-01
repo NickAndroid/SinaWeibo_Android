@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Beans xmlns:app="http://schemas.android.com/apk/res-auto">
+    <Bean
+        app:clz="nick.dev.sina.app.provider.SettingsProviderImpl"
+        app:identify="@+id/settings_provider"
+        app:nickname="settings_provider" />
+
+    <Bean
+        app:clz="nick.dev.sina.app.provider.ThemeProviderImpl"
+        app:identify="@+id/theme_provider"
+        app:nickname="theme_provider" />
+</Beans>

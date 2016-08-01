@@ -28,6 +28,7 @@ import android.view.View;
 import com.nick.scalpel.Scalpel;
 import com.nick.scalpel.ScalpelApplication;
 import com.nick.scalpel.annotation.binding.MainThreadHandler;
+import com.nick.scalpel.annotation.opt.ContextConfiguration;
 import com.nick.scalpel.core.FieldWirer;
 import com.nick.scalpel.core.utils.ReflectionUtils;
 
@@ -35,9 +36,11 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
 import dev.nick.logger.LoggerManager;
+import nick.dev.sina.R;
 import nick.dev.sina.app.annotation.RetrieveApp;
 import nick.dev.sina.app.annotation.RetrieveLogger;
 
+@ContextConfiguration(xmlRes = R.xml.app_context)
 public class SinaApp extends ScalpelApplication {
 
     @MainThreadHandler

@@ -16,14 +16,19 @@
 
 package nick.dev.sina.app.content;
 
+import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+
+import com.nick.scalpel.Scalpel;
+import com.nick.scalpel.annotation.opt.RetrieveBean;
 
 import java.util.List;
 
 import dev.nick.logger.LoggerManager;
 import nick.dev.sina.R;
+import nick.dev.sina.app.provider.SettingsProvider;
 
 public class FragmentController {
 
@@ -34,9 +39,9 @@ public class FragmentController {
 
     int mDefIndex = 0;
 
-    public FragmentController(FragmentManager mFragmentManager, List<TransactionSafeFragment> mPages) {
-        this.mFragmentManager = mFragmentManager;
-        this.mPages = mPages;
+    public FragmentController(FragmentManager manager, List<TransactionSafeFragment> safeFragments) {
+        this.mFragmentManager = manager;
+        this.mPages = safeFragments;
         init();
     }
 
