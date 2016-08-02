@@ -19,8 +19,6 @@ package nick.dev.sina.app.content;
 import android.content.Context;
 import android.support.v4.app.Fragment;
 
-import dev.nick.logger.LoggerManager;
-
 public abstract class TransactionSafeFragment extends Fragment implements TransactionListener {
 
     TransactionManager transactionManager;
@@ -30,14 +28,12 @@ public abstract class TransactionSafeFragment extends Fragment implements Transa
         super.onAttach(context);
         transactionManager = (TransactionManager) getActivity();
         transactionManager.registerTransactionListener(this);
-        LoggerManager.getLogger(getClass()).funcEnter();
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         transactionManager.unRegisterTransactionListener(this);
-        LoggerManager.getLogger(getClass()).funcEnter();
     }
 
     protected TransactionManager getTransactionManager() {
@@ -45,10 +41,8 @@ public abstract class TransactionSafeFragment extends Fragment implements Transa
     }
 
     public void onVisible() {
-        LoggerManager.getLogger(getClass()).funcEnter();
     }
 
     public void onInVisible() {
-        LoggerManager.getLogger(getClass()).funcEnter();
     }
 }

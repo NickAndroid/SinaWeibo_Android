@@ -16,30 +16,34 @@
 
 package nick.dev.sina.app.content;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.app.SharedElementCallback;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.SparseIntArray;
+import android.view.View;
 
 import com.nick.scalpel.Scalpel;
-import com.nick.scalpel.annotation.binding.FindIntArray;
+import com.nick.scalpel.annotation.binding.FindStringArray;
 import com.nick.scalpel.annotation.binding.FindView;
 import com.nick.scalpel.annotation.opt.RetrieveBean;
 import com.nick.scalpel.annotation.request.RequirePermission;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnMenuTabClickListener;
+import com.sina.weibo.sdk.openapi.models.Status;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import dev.nick.logger.Logger;
+import dev.nick.logger.LoggerManager;
 import nick.dev.sina.R;
 import nick.dev.sina.app.annotation.RetrieveLogger;
 import nick.dev.sina.app.provider.SettingsProvider;
@@ -48,7 +52,7 @@ import nick.dev.sina.app.widget.ColorUtils;
 import nick.dev.sina.sdk.AuthHelper;
 
 @RequirePermission
-public class NavigatorActivity extends AppCompatActivity implements TransactionManager {
+public class NavigatorActivity extends AppCompatActivity implements TransactionManager, StatusFragment.FeedActionListener {
 
     final List<TransactionListener> transactionListeners = new ArrayList<>();
 
@@ -60,12 +64,12 @@ public class NavigatorActivity extends AppCompatActivity implements TransactionM
     @FindView(id = R.id.coordinator)
     CoordinatorLayout mCoordinator;
 
-    @FindIntArray(id = R.array.tab_colors)
-    int[] mColors;
+    @FindStringArray(id = R.array.tab_colors)
+    String[] mColors;
 
     FragmentController mController;
 
-    Map<Integer, Integer> idMap = new HashMap();
+    SparseIntArray idMap = new SparseIntArray();
 
     @RetrieveLogger
     Logger mLogger;
@@ -75,6 +79,8 @@ public class NavigatorActivity extends AppCompatActivity implements TransactionM
 
     @RetrieveBean(id = R.id.theme_provider)
     ThemeProvider mThemeProvider;
+
+    private View mHero;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,34 +108,6 @@ public class NavigatorActivity extends AppCompatActivity implements TransactionM
         mBottomBar = BottomBar.attachShy(mCoordinator, findViewById(R.id.container), savedInstanceState);
         mBottomBar.noTopOffset();
         mBottomBar.setItems(R.menu.navigator);
-//        mBottomBar.setOnMenuTabClickListener(new OnMenuTabClickListener() {
-//            @Override
-//            public void onMenuTabSelected(@IdRes int menuItemId) {
-//                TransactionSafeFragment from = mController.getCurrent();
-//                int toId = idMap.get(menuItemId);
-//                mController.setCurrent(toId);
-//                TransactionSafeFragment to = mController.getCurrent();
-//
-//                synchronized (transactionListeners) {
-//                    for (TransactionListener listener : transactionListeners) {
-//                        listener.onFragmentTransaction(from, to);
-//                    }
-//                }
-//
-//                int themedColor = ContextCompat.getColor(NavigatorActivity.this, mColors[idMap.get(menuItemId)]);
-//
-//                mToolbar.setBackgroundColor(themedColor);
-//
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//                    getWindow().setStatusBarColor(ColorUtils.colorBurn(themedColor));
-//                }
-//            }
-//
-//            @Override
-//            public void onMenuTabReSelected(@IdRes int menuItemId) {
-//
-//            }
-//        });
 
         mapColorForTab(R.id.nav_status, 0);
         mapColorForTab(R.id.nav_message, 1);
@@ -137,14 +115,47 @@ public class NavigatorActivity extends AppCompatActivity implements TransactionM
         mapColorForTab(R.id.nav_me, 3);
         mapColorForTab(R.id.nav_config, 4);
 
-        mThemeProvider.inflateTabColorMap(idMap);
+        mBottomBar.setOnMenuTabClickListener(new OnMenuTabClickListener() {
+            @Override
+            public void onMenuTabSelected(@IdRes int menuItemId) {
+
+                LoggerManager.getLogger(getClass()).debug(menuItemId);
+
+                TransactionSafeFragment from = mController.getCurrent();
+                int toId = idMap.get(menuItemId);
+                mController.setCurrent(toId);
+                TransactionSafeFragment to = mController.getCurrent();
+
+                synchronized (transactionListeners) {
+                    for (TransactionListener listener : transactionListeners) {
+                        listener.onFragmentTransaction(from, to);
+                    }
+                }
+
+                int themedColor = Color.parseColor(mColors[idMap.get(menuItemId)]);
+
+                mToolbar.setBackgroundColor(themedColor);
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    getWindow().setStatusBarColor(ColorUtils.colorBurn(themedColor));
+                }
+            }
+
+            @Override
+            public void onMenuTabReSelected(@IdRes int menuItemId) {
+                TransactionSafeFragment current = mController.getCurrent();
+                if (current instanceof Scrollable) {
+                    ((Scrollable) current).scrollToTop();
+                }
+            }
+        });
 
         mBottomBar.selectTabAtPosition(mSettingsProvider.getLastTabIndex(), false);
     }
 
     void mapColorForTab(int id, int index) {
         idMap.put(id, index);
-        mBottomBar.mapColorForTab(index, ContextCompat.getColor(this, mColors[index]));
+        mBottomBar.mapColorForTab(index, mColors[index]);
     }
 
     private void initPages() {
@@ -159,6 +170,18 @@ public class NavigatorActivity extends AppCompatActivity implements TransactionM
     }
 
 
+    void setupTransaction() {
+        if (mHero != null) {
+            setEnterSharedElementCallback(new SharedElementCallback() {
+                @Override
+                public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
+                    super.onMapSharedElements(names, sharedElements);
+                    sharedElements.put("hero", mHero);
+                }
+            });
+        }
+    }
+
     @Override
     public void registerTransactionListener(TransactionListener listener) {
         mLogger.debug(listener);
@@ -172,6 +195,21 @@ public class NavigatorActivity extends AppCompatActivity implements TransactionM
         mLogger.debug(listener);
         synchronized (transactionListeners) {
             transactionListeners.remove(listener);
+        }
+    }
+
+    @Override
+    public void onFeedImageClick(View view, Status status) {
+        mLogger.funcEnter();
+        setupTransaction();
+        mHero = view;
+        Intent intent = new Intent(this, FeedImageViewerActivity.class);
+        intent.putExtra("url", status.original_pic);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            ActivityOptions activityOptions = ActivityOptions.makeSceneTransitionAnimation(this, view, "hero");
+            startActivity(intent, activityOptions.toBundle());
+        } else {
+            startActivity(intent);
         }
     }
 }

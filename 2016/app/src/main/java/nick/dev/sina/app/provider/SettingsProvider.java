@@ -5,4 +5,5 @@ package nick.dev.sina.app.provider;
  */
 public interface SettingsProvider {
     int getLastTabIndex();
+    String snapShotPath();
 }

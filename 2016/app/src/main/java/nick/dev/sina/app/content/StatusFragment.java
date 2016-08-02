@@ -16,20 +16,27 @@
 
 package nick.dev.sina.app.content;
 
+import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
 
 import com.nick.scalpel.Scalpel;
 import com.nick.scalpel.annotation.binding.FindView;
+import com.nick.scalpel.annotation.opt.RetrieveBean;
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.net.RequestListener;
@@ -37,21 +44,24 @@ import com.sina.weibo.sdk.openapi.StatusesAPI;
 import com.sina.weibo.sdk.openapi.models.Status;
 import com.sina.weibo.sdk.openapi.models.StatusList;
 
+import java.io.File;
 import java.util.List;
 
 import dev.nick.imageloader.ImageLoader;
 import dev.nick.imageloader.LoaderConfig;
 import dev.nick.imageloader.display.DisplayOption;
-import dev.nick.imageloader.display.animator.FadeInImageAnimator;
+import dev.nick.imageloader.display.animator.ResAnimator;
 import dev.nick.imageloader.loader.network.NetworkPolicy;
 import dev.nick.logger.Logger;
 import dev.nick.logger.LoggerManager;
 import nick.dev.sina.R;
 import nick.dev.sina.app.annotation.RetrieveLogger;
+import nick.dev.sina.app.provider.SettingsProvider;
+import nick.dev.sina.app.utils.BitmapUtils;
 import nick.dev.sina.sdk.AccessTokenKeeper;
 import nick.dev.sina.sdk.SdkConfig;
 
-public class StatusFragment extends TransactionSafeFragment {
+public class StatusFragment extends TransactionSafeFragment implements Scrollable {
 
     @FindView(id = R.id.recycler_view)
     RecyclerView mRecyclerView;
@@ -62,6 +72,11 @@ public class StatusFragment extends TransactionSafeFragment {
     Adapter mAdapter;
 
     StatusList mStatusList;
+
+    FeedActionListener mFeedActionListener;
+
+    @RetrieveBean(id = R.id.settings_provider)
+    SettingsProvider mSettingsProvider;
 
     private RequestListener mListener = new RequestListener() {
         @Override
@@ -83,6 +98,11 @@ public class StatusFragment extends TransactionSafeFragment {
         }
     };
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mFeedActionListener = (FeedActionListener) getActivity();
+    }
 
     @Nullable
     @Override
@@ -111,13 +131,14 @@ public class StatusFragment extends TransactionSafeFragment {
     private void createAdapter() {
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-        mAdapter = new Adapter(mStatusList.statusList);
+        mAdapter = new Adapter(mStatusList.statusList, mFeedActionListener);
         mRecyclerView.setAdapter(mAdapter);
     }
 
     @Override
     public void onVisible() {
         super.onVisible();
+        LoggerManager.getLogger(getClass()).funcEnter();
         if (mAdapter != null) {
             mAdapter.onVisible();
         }
@@ -139,8 +160,18 @@ public class StatusFragment extends TransactionSafeFragment {
         }
     }
 
+    @Override
     public void scrollToTop() {
-        mRecyclerView.smoothScrollToPosition(0);
+        if (mRecyclerView != null) {
+            mRecyclerView.smoothScrollToPosition(0);
+        }
+    }
+
+    @Override
+    public void scrollToBottom() {
+        if (mRecyclerView != null) {
+            mRecyclerView.smoothScrollToPosition(mAdapter.getItemCount() - 1);
+        }
     }
 
     @Override
@@ -153,6 +184,10 @@ public class StatusFragment extends TransactionSafeFragment {
         }
     }
 
+    interface FeedActionListener {
+        void onFeedImageClick(View view, Status status);
+    }
+
     static class FeedViewHolder extends RecyclerView.ViewHolder {
 
         @FindView(id = R.id.user_profile_img)
@@ -163,6 +198,8 @@ public class StatusFragment extends TransactionSafeFragment {
         TextView feedText;
         @FindView(id = R.id.user_profile_name)
         TextView userNameView;
+        @FindView(id = R.id.button_more)
+        ImageButton moreBtn;
         @FindView(id = R.id.likes_cnt)
         TextSwitcher likesCntView;
         @FindView(id = R.id.repost_cnt)
@@ -182,9 +219,13 @@ public class StatusFragment extends TransactionSafeFragment {
 
         private ImageLoader mAvatarLoader;
         private ImageLoader mContentLoader;
-        private DisplayOption mDisplayOption;
+        private DisplayOption mContentDisplayOption;
+        private DisplayOption mAvatarDisplayOption;
 
-        public Adapter(List<Status> data) {
+        private FeedActionListener mFeedActionListener;
+
+        public Adapter(List<Status> data, FeedActionListener feedActionListener) {
+            this.mFeedActionListener = feedActionListener;
             this.data = data;
             this.mContentLoader = ImageLoader.create(getContext(), LoaderConfig.DEFAULT_CONFIG);
             this.mAvatarLoader = ImageLoader.create(getContext(),
@@ -193,10 +234,13 @@ public class StatusFragment extends TransactionSafeFragment {
                             .networkPolicy(new NetworkPolicy
                                     .Builder()
                                     .build()).build());
-            this.mDisplayOption = new DisplayOption.Builder()
-                    .animateOnlyNewLoaded()
+            this.mContentDisplayOption = new DisplayOption.Builder()
                     .viewMaybeReused()
-                    .imageAnimator(new FadeInImageAnimator())
+                    .imageAnimator(ResAnimator.from(getContext(), R.anim.grow_fade_in_from_bottom))
+                    .build();
+            this.mAvatarDisplayOption = new DisplayOption.Builder()
+                    .viewMaybeReused()
+                    .imageAnimator(ResAnimator.from(getContext(), R.anim.grow_fade_in_from_bottom))
                     .build();
         }
 
@@ -206,6 +250,7 @@ public class StatusFragment extends TransactionSafeFragment {
         }
 
         public void onVisible() {
+            LoggerManager.getLogger(getClass()).funcEnter();
             mAvatarLoader.resume();
             mContentLoader.resume();
         }
@@ -226,10 +271,10 @@ public class StatusFragment extends TransactionSafeFragment {
             final Status item = data.get(position);
             holder.feedText.setText(item.text);
             holder.userNameView.setText(item.user.name);
-            mAvatarLoader.displayImage(item.user.avatar_large, holder.userProfileView, mDisplayOption);
+            mAvatarLoader.displayImage(item.user.avatar_large, holder.userProfileView, mAvatarDisplayOption);
             if (!TextUtils.isEmpty(item.bmiddle_pic)) {
                 holder.feedImageView.setVisibility(View.VISIBLE);
-                mContentLoader.displayImage(item.bmiddle_pic, holder.feedImageView, mDisplayOption);
+                mContentLoader.displayImage(item.bmiddle_pic, holder.feedImageView, mContentDisplayOption);
             } else {
                 holder.feedImageView.setVisibility(View.GONE);
             }
@@ -243,11 +288,58 @@ public class StatusFragment extends TransactionSafeFragment {
             });
             holder.commentCntView.setText(String.valueOf(item.comments_count));
             holder.repostCntView.setText(String.valueOf(item.reposts_count));
+            holder.feedImageView.setOnClickListener(new FeedImageListener(item, mFeedActionListener));
+            holder.moreBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    PopupMenu popupMenu = new PopupMenu(getContext(), view);
+                    popupMenu.inflate(R.menu.feed_item);
+                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem menuItem) {
+                            holder.itemView.setDrawingCacheEnabled(true);
+                            holder.itemView.buildDrawingCache();
+                            Bitmap cache = holder.itemView.getDrawingCache();
+                            BitmapUtils.saveBitmapAsync(cache, mSettingsProvider.snapShotPath() + File.separator
+                                            + item.user.screen_name
+                                            + File.separator
+                                            + item.idstr
+                                            + "."
+                                            + Bitmap.CompressFormat.PNG.name(),
+                                    new BitmapUtils.ActionListener() {
+                                        @Override
+                                        public void onResult(boolean ok) {
+                                            //noinspection ConstantConditions
+                                            Snackbar.make(getView(), "Saved result " + ok, Snackbar.LENGTH_SHORT).show();
+                                        }
+                                    });
+                            return true;
+                        }
+                    });
+                    popupMenu.show();
+                }
+            });
         }
 
         @Override
         public int getItemCount() {
             return data.size();
+        }
+    }
+
+    class FeedImageListener implements View.OnClickListener {
+
+        Status status;
+        FeedActionListener feedActionListener;
+
+        public FeedImageListener(Status status, FeedActionListener feedActionListener) {
+            this.status = status;
+            this.feedActionListener = feedActionListener;
+        }
+
+        @Override
+        public void onClick(View view) {
+            feedActionListener.onFeedImageClick(view, status);
         }
     }
 }
