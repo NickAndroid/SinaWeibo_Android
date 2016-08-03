@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (c) 2016 Nick Guo
   ~
@@ -14,13 +15,18 @@
   ~ limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context="nick.dev.sina.app.content.ScrollingActivity">
-    <item
-        android:id="@+id/action_status_snapshot"
-        android:orderInCategory="100"
-        android:title="@string/action_status_snapshot"
-        app:showAsAction="never" />
-</menu>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <scale
+        android:duration="200"
+        android:fromXScale="1.0"
+        android:fromYScale="1.0"
+        android:interpolator="@android:anim/accelerate_decelerate_interpolator"
+        android:pivotX="50.0%"
+        android:pivotY="50.0%"
+        android:toXScale="0.7"
+        android:toYScale="0.7" />
+    <alpha
+        android:duration="200"
+        android:fromAlpha="1.0"
+        android:toAlpha="0.0" />
+</set>

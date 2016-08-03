@@ -23,7 +23,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.v4.app.SharedElementCallback;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.SparseIntArray;
@@ -40,10 +39,8 @@ import com.sina.weibo.sdk.openapi.models.Status;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import dev.nick.logger.Logger;
-import dev.nick.logger.LoggerManager;
 import nick.dev.sina.R;
 import nick.dev.sina.app.annotation.RetrieveLogger;
 import nick.dev.sina.app.provider.SettingsProvider;
@@ -79,8 +76,6 @@ public class NavigatorActivity extends AppCompatActivity implements TransactionM
 
     @RetrieveBean(id = R.id.theme_provider)
     ThemeProvider mThemeProvider;
-
-    private View mHero;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,8 +114,6 @@ public class NavigatorActivity extends AppCompatActivity implements TransactionM
             @Override
             public void onMenuTabSelected(@IdRes int menuItemId) {
 
-                LoggerManager.getLogger(getClass()).debug(menuItemId);
-
                 TransactionSafeFragment from = mController.getCurrent();
                 int toId = idMap.get(menuItemId);
                 mController.setCurrent(toId);
@@ -139,6 +132,8 @@ public class NavigatorActivity extends AppCompatActivity implements TransactionM
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     getWindow().setStatusBarColor(ColorUtils.colorBurn(themedColor));
                 }
+
+                setTitle(to.getTransactionName());
             }
 
             @Override
@@ -170,18 +165,6 @@ public class NavigatorActivity extends AppCompatActivity implements TransactionM
     }
 
 
-    void setupTransaction() {
-        if (mHero != null) {
-            setEnterSharedElementCallback(new SharedElementCallback() {
-                @Override
-                public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
-                    super.onMapSharedElements(names, sharedElements);
-                    sharedElements.put("hero", mHero);
-                }
-            });
-        }
-    }
-
     @Override
     public void registerTransactionListener(TransactionListener listener) {
         mLogger.debug(listener);
@@ -201,12 +184,11 @@ public class NavigatorActivity extends AppCompatActivity implements TransactionM
     @Override
     public void onFeedImageClick(View view, Status status) {
         mLogger.funcEnter();
-        setupTransaction();
-        mHero = view;
         Intent intent = new Intent(this, FeedImageViewerActivity.class);
+        intent.putExtra("thumb", status.bmiddle_pic);
         intent.putExtra("url", status.original_pic);
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            ActivityOptions activityOptions = ActivityOptions.makeSceneTransitionAnimation(this, view, "hero");
+            ActivityOptions activityOptions = ActivityOptions.makeScaleUpAnimation(view, 0, view.getHeight() / 2, view.getWidth(), view.getHeight());
             startActivity(intent, activityOptions.toBundle());
         } else {
             startActivity(intent);

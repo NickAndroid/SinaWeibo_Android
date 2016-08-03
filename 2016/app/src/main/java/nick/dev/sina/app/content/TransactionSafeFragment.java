@@ -17,6 +17,7 @@
 package nick.dev.sina.app.content;
 
 import android.content.Context;
+import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 
 public abstract class TransactionSafeFragment extends Fragment implements TransactionListener {
@@ -45,4 +46,8 @@ public abstract class TransactionSafeFragment extends Fragment implements Transa
 
     public void onInVisible() {
     }
+
+    public abstract
+    @StringRes
+    int getTransactionName();
 }

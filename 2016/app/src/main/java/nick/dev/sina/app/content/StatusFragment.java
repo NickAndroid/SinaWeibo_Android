@@ -153,6 +153,11 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
     }
 
     @Override
+    public int getTransactionName() {
+        return R.string.tab_title_status;
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         if (mAdapter != null) {
@@ -279,13 +284,6 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
                 holder.feedImageView.setVisibility(View.GONE);
             }
             holder.likesCntView.setText(String.valueOf(item.attitudes_count));
-            holder.likesCntView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    TextSwitcher switcher = (TextSwitcher) view;
-                    switcher.setText(String.valueOf(item.attitudes_count + 1));
-                }
-            });
             holder.commentCntView.setText(String.valueOf(item.comments_count));
             holder.repostCntView.setText(String.valueOf(item.reposts_count));
             holder.feedImageView.setOnClickListener(new FeedImageListener(item, mFeedActionListener));
@@ -294,28 +292,7 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
                 public void onClick(View view) {
                     PopupMenu popupMenu = new PopupMenu(getContext(), view);
                     popupMenu.inflate(R.menu.feed_item);
-                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                        @Override
-                        public boolean onMenuItemClick(MenuItem menuItem) {
-                            holder.itemView.setDrawingCacheEnabled(true);
-                            holder.itemView.buildDrawingCache();
-                            Bitmap cache = holder.itemView.getDrawingCache();
-                            BitmapUtils.saveBitmapAsync(cache, mSettingsProvider.snapShotPath() + File.separator
-                                            + item.user.screen_name
-                                            + File.separator
-                                            + item.idstr
-                                            + "."
-                                            + Bitmap.CompressFormat.PNG.name(),
-                                    new BitmapUtils.ActionListener() {
-                                        @Override
-                                        public void onResult(boolean ok) {
-                                            //noinspection ConstantConditions
-                                            Snackbar.make(getView(), "Saved result " + ok, Snackbar.LENGTH_SHORT).show();
-                                        }
-                                    });
-                            return true;
-                        }
-                    });
+                    popupMenu.setOnMenuItemClickListener(new PopMenuListener(holder.itemView, item));
                     popupMenu.show();
                 }
             });
@@ -324,6 +301,48 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
         @Override
         public int getItemCount() {
             return data.size();
+        }
+    }
+
+    class PopMenuListener implements PopupMenu.OnMenuItemClickListener {
+
+        View itemView;
+        Status status;
+
+        public PopMenuListener(View itemView, Status status) {
+            this.itemView = itemView;
+            this.status = status;
+        }
+
+        @Override
+        public boolean onMenuItemClick(final MenuItem item) {
+            itemView.setDrawingCacheEnabled(true);
+            itemView.buildDrawingCache();
+            Bitmap cache = itemView.getDrawingCache();
+            BitmapUtils.saveBitmapAsync(cache, mSettingsProvider.snapShotPath() + File.separator
+                            + status.user.screen_name
+                            + File.separator
+                            + status.idstr
+                            + "."
+                            + Bitmap.CompressFormat.PNG.name(),
+                    new BitmapUtils.ActionListener() {
+                        @Override
+                        public void onResult(boolean ok) {
+                            if (ok) {
+                                //noinspection ConstantConditions
+                                Snackbar.make(getView(), R.string.status_snapshot_save_result_ok, Snackbar.LENGTH_SHORT)
+                                        .setAction(R.string.status_snapshot_action_view, new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View view) {
+                                                // FIXME: 2016/8/3 Set action
+                                            }
+                                        }).show();
+                            }
+                            itemView.setDrawingCacheEnabled(false);
+                            itemView.destroyDrawingCache();
+                        }
+                    });
+            return true;
         }
     }
 

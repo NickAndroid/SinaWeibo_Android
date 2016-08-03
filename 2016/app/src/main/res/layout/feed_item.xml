@@ -51,7 +51,7 @@
         <TextView
             android:id="@+id/feed_text"
             android:padding="6dp"
-            android:textColor="@color/secondary_text"
+            android:textColor="@color/primary_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
@@ -110,9 +110,10 @@
                 android:layout_weight="1"
                 android:gravity="center_vertical|right">
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                <ImageButton
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/btn_feed_action"
                     android:src="@drawable/ic_heart_outline_grey" />
 
                 <TextSwitcher
