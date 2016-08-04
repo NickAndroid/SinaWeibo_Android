@@ -73,7 +73,7 @@
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/layout_recycler" />
+    <include layout="@layout/layout_recycler_none_refreshable" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
