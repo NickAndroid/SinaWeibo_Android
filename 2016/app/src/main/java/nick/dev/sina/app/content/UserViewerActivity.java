@@ -16,8 +16,12 @@
 
 package nick.dev.sina.app.content;
 
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -40,10 +44,14 @@ import dev.nick.imageloader.ImageLoader;
 import dev.nick.imageloader.display.DisplayOption;
 import dev.nick.imageloader.display.animator.FadeInImageAnimator;
 import dev.nick.imageloader.display.processor.BlurBitmapProcessor;
+import dev.nick.imageloader.loader.result.BitmapResult;
 import dev.nick.logger.Logger;
+import dev.nick.logger.LoggerManager;
 import nick.dev.sina.R;
 import nick.dev.sina.app.annotation.RetrieveLogger;
 import nick.dev.sina.app.content.adapter.StatusAdapter;
+import nick.dev.sina.app.opt.DisplayListenerStub;
+import nick.dev.sina.app.widget.ColorUtils;
 import nick.dev.sina.sdk.AccessTokenKeeper;
 import nick.dev.sina.sdk.SdkConfig;
 
@@ -73,6 +81,7 @@ public class UserViewerActivity extends ScalpelAutoActivity {
     private RequestListener mListener = new RequestListener() {
         @Override
         public void onComplete(String response) {
+            mLogger.verbose(response);
             if (!TextUtils.isEmpty(response)) {
                 if (response.startsWith("{\"statuses\"")) {
                     StatusList statuses = StatusList.parse(response);
@@ -95,7 +104,7 @@ public class UserViewerActivity extends ScalpelAutoActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_status_viewer);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         Status status = (Status) mTransactionCache.get(getIntent().getStringExtra("trans_id"));
@@ -110,7 +119,28 @@ public class UserViewerActivity extends ScalpelAutoActivity {
 
         ImageLoader.shared(this).displayImage(status.user.avatar_hd, backDropView, new DisplayOption.Builder()
                 .bitmapProcessor(new BlurBitmapProcessor(20))
-                .imageAnimator(new FadeInImageAnimator()).build());
+                .imageAnimator(new FadeInImageAnimator()).build(), new DisplayListenerStub() {
+            @Override
+            public void onComplete(@Nullable BitmapResult result) {
+                super.onComplete(result);
+                if (result != null && result.result != null) {
+                    Palette.from(result.result).generate(new Palette.PaletteAsyncListener() {
+                        @Override
+                        public void onGenerated(Palette palette) {
+                            LoggerManager.getLogger(FeedImageViewerActivity.class).funcEnter();
+                            int defColor = ContextCompat.getColor(UserViewerActivity.this, R.color.primary);
+                            int themeColor = palette.getLightVibrantColor(defColor);
+                            int themeColorDark = ColorUtils.colorBurn(palette.getLightVibrantColor(defColor));
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                getWindow().setStatusBarColor(themeColorDark);
+                                getWindow().setNavigationBarColor(themeColorDark);
+                                toolbar.setBackgroundColor(themeColor);
+                            }
+                        }
+                    });
+                }
+            }
+        });
 
         ImageLoader.shared(this).displayImage(status.user.avatar_hd, userProfileView);
 
@@ -124,7 +154,7 @@ public class UserViewerActivity extends ScalpelAutoActivity {
 
     void requestStatus(User user) {
         mLogger.verbose(user);
-        statusesAPI.userTimeline(user.screen_name, 0L, 0L, 20, 1, false, 0, false, mListener);
+        statusesAPI.userTimeline(0L, 0L, 20, 1, false, 0, false, mListener);//// FIXME: 2016/8/4 Right user
     }
 
     private void createAdapter() {

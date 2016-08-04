@@ -1,1 +1,1 @@
-include ':app', ':weibo_sdk'
+include ':app', ':weibo_sdk', ':material_refresh'
