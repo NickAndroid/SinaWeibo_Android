@@ -53,9 +53,6 @@ public class FeedImageViewerActivity extends ScalpelAutoActivity {
     @FindView(id = R.id.fab)
     FloatingActionButton mFab;
 
-    @FindView(id = R.id.root)
-    ViewGroup mRootView;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,35 +60,8 @@ public class FeedImageViewerActivity extends ScalpelAutoActivity {
         setContentView(R.layout.image_viewer);
 
         String thumb = getIntent().getStringExtra("thumb");
-        ImageLoader.shared(this)
-                .displayImage(thumb, new ImageSettable() {
-                    @Override
-                    public void setImageBitmap(@NonNull Bitmap bitmap) {
-                        // Nothing.
-                    }
 
-                    @Override
-                    public void setImageResource(int resId) {
-                        // Nothing.
-                    }
-
-                    @Override
-                    public int getWidth() {
-                        return mRootView.getWidth();
-                    }
-
-                    @Override
-                    public int getHeight() {
-                        return mRootView.getHeight();
-                    }
-
-                    @Override
-                    public void startAnimation(Animation animation) {
-                        // Nothing.
-                    }
-                }, new DisplayOption.Builder()
-                        .bitmapProcessor(new BlurBitmapProcessor(20))
-                        .build());
+     //   ImageLoader.shared(this).displayImage(thumb, mImageView);
 
         String url = getIntent().getStringExtra("url");
 
@@ -99,6 +69,7 @@ public class FeedImageViewerActivity extends ScalpelAutoActivity {
                 .displayImage(url, mImageView,
                         new DisplayOption.Builder()
                                 .imageQuality(ImageQuality.RAW)
+                                .oneAfterOne()
                                 .build(), new DisplayListenerStub() {
                             @Override
                             public void onComplete(@Nullable BitmapResult result) {

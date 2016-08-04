@@ -16,6 +16,9 @@
 
 package com.sina.weibo.sdk.openapi.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -25,7 +28,7 @@ import org.json.JSONObject;
  * @author SINA
  * @since 2013-11-24
  */
-public class User {
+public class User implements Parcelable{
 
     /** 用户UID（int64） */
     public String id;
@@ -101,7 +104,63 @@ public class User {
     public String mbtype;
     public String mbrank;
     public String block_word;
-    
+
+    public User() {
+    }
+
+    protected User(Parcel in) {
+        id = in.readString();
+        idstr = in.readString();
+        screen_name = in.readString();
+        name = in.readString();
+        province = in.readInt();
+        city = in.readInt();
+        location = in.readString();
+        description = in.readString();
+        url = in.readString();
+        profile_image_url = in.readString();
+        profile_url = in.readString();
+        domain = in.readString();
+        weihao = in.readString();
+        gender = in.readString();
+        followers_count = in.readInt();
+        friends_count = in.readInt();
+        statuses_count = in.readInt();
+        favourites_count = in.readInt();
+        created_at = in.readString();
+        following = in.readByte() != 0;
+        allow_all_act_msg = in.readByte() != 0;
+        geo_enabled = in.readByte() != 0;
+        verified = in.readByte() != 0;
+        verified_type = in.readInt();
+        remark = in.readString();
+        status = in.readParcelable(Status.class.getClassLoader());
+        allow_all_comment = in.readByte() != 0;
+        avatar_large = in.readString();
+        avatar_hd = in.readString();
+        verified_reason = in.readString();
+        follow_me = in.readByte() != 0;
+        online_status = in.readInt();
+        bi_followers_count = in.readInt();
+        lang = in.readString();
+        star = in.readString();
+        mbtype = in.readString();
+        mbrank = in.readString();
+        block_word = in.readString();
+    }
+
+    public static final Creator<User> CREATOR = new Creator<User>() {
+        @Override
+        public User createFromParcel(Parcel in) {
+            return new User(in);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
+
     public static User parse(String jsonString) {
         try {
             JSONObject jsonObject = new JSONObject(jsonString);
@@ -161,5 +220,96 @@ public class User {
         user.block_word         = jsonObject.optString("block_word", "");
         
         return user;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(id);
+        parcel.writeString(idstr);
+        parcel.writeString(screen_name);
+        parcel.writeString(name);
+        parcel.writeInt(province);
+        parcel.writeInt(city);
+        parcel.writeString(location);
+        parcel.writeString(description);
+        parcel.writeString(url);
+        parcel.writeString(profile_image_url);
+        parcel.writeString(profile_url);
+        parcel.writeString(domain);
+        parcel.writeString(weihao);
+        parcel.writeString(gender);
+        parcel.writeInt(followers_count);
+        parcel.writeInt(friends_count);
+        parcel.writeInt(statuses_count);
+        parcel.writeInt(favourites_count);
+        parcel.writeString(created_at);
+        parcel.writeByte((byte) (following ? 1 : 0));
+        parcel.writeByte((byte) (allow_all_act_msg ? 1 : 0));
+        parcel.writeByte((byte) (geo_enabled ? 1 : 0));
+        parcel.writeByte((byte) (verified ? 1 : 0));
+        parcel.writeInt(verified_type);
+        parcel.writeString(remark);
+        parcel.writeParcelable(status, i);
+        parcel.writeByte((byte) (allow_all_comment ? 1 : 0));
+        parcel.writeString(avatar_large);
+        parcel.writeString(avatar_hd);
+        parcel.writeString(verified_reason);
+        parcel.writeByte((byte) (follow_me ? 1 : 0));
+        parcel.writeInt(online_status);
+        parcel.writeInt(bi_followers_count);
+        parcel.writeString(lang);
+        parcel.writeString(star);
+        parcel.writeString(mbtype);
+        parcel.writeString(mbrank);
+        parcel.writeString(block_word);
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + id + '\'' +
+                ", idstr='" + idstr + '\'' +
+                ", screen_name='" + screen_name + '\'' +
+                ", name='" + name + '\'' +
+                ", province=" + province +
+                ", city=" + city +
+                ", location='" + location + '\'' +
+                ", description='" + description + '\'' +
+                ", url='" + url + '\'' +
+                ", profile_image_url='" + profile_image_url + '\'' +
+                ", profile_url='" + profile_url + '\'' +
+                ", domain='" + domain + '\'' +
+                ", weihao='" + weihao + '\'' +
+                ", gender='" + gender + '\'' +
+                ", followers_count=" + followers_count +
+                ", friends_count=" + friends_count +
+                ", statuses_count=" + statuses_count +
+                ", favourites_count=" + favourites_count +
+                ", created_at='" + created_at + '\'' +
+                ", following=" + following +
+                ", allow_all_act_msg=" + allow_all_act_msg +
+                ", geo_enabled=" + geo_enabled +
+                ", verified=" + verified +
+                ", verified_type=" + verified_type +
+                ", remark='" + remark + '\'' +
+                ", status=" + status +
+                ", allow_all_comment=" + allow_all_comment +
+                ", avatar_large='" + avatar_large + '\'' +
+                ", avatar_hd='" + avatar_hd + '\'' +
+                ", verified_reason='" + verified_reason + '\'' +
+                ", follow_me=" + follow_me +
+                ", online_status=" + online_status +
+                ", bi_followers_count=" + bi_followers_count +
+                ", lang='" + lang + '\'' +
+                ", star='" + star + '\'' +
+                ", mbtype='" + mbtype + '\'' +
+                ", mbrank='" + mbrank + '\'' +
+                ", block_word='" + block_word + '\'' +
+                '}';
     }
 }

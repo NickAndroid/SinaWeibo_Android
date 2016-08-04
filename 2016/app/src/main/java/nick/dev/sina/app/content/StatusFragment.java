@@ -69,11 +69,11 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
     @RetrieveLogger
     Logger mLogger;
 
-    Adapter mAdapter;
+    StatusAdapter mStatusAdapter;
 
     StatusList mStatusList;
 
-    FeedActionListener mFeedActionListener;
+    StatusActionListener mStatusActionListener;
 
     @RetrieveBean(id = R.id.settings_provider)
     SettingsProvider mSettingsProvider;
@@ -101,13 +101,13 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mFeedActionListener = (FeedActionListener) getActivity();
+        mStatusActionListener = (StatusActionListener) getActivity();
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_main, container, false);
+        return inflater.inflate(R.layout.layout_recycler, container, false);
     }
 
     @Override
@@ -125,30 +125,30 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
     void getStatus() {
         Oauth2AccessToken accessToken = AccessTokenKeeper.readAccessToken(getActivity());
         StatusesAPI statusesAPI = new StatusesAPI(getActivity(), SdkConfig.APP_KEY, accessToken);
-        statusesAPI.friendsTimeline(0L, 0L, 100, 2, false, 0, false, mListener);
+        statusesAPI.friendsTimeline(0L, 0L, 50, 1, false, 0, false, mListener);
     }
 
     private void createAdapter() {
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-        mAdapter = new Adapter(mStatusList.statusList, mFeedActionListener);
-        mRecyclerView.setAdapter(mAdapter);
+        mStatusAdapter = new StatusAdapter(mStatusList.statusList, mStatusActionListener);
+        mRecyclerView.setAdapter(mStatusAdapter);
     }
 
     @Override
     public void onVisible() {
         super.onVisible();
         LoggerManager.getLogger(getClass()).funcEnter();
-        if (mAdapter != null) {
-            mAdapter.onVisible();
+        if (mStatusAdapter != null) {
+            mStatusAdapter.onVisible();
         }
     }
 
     @Override
     public void onInVisible() {
         super.onInVisible();
-        if (mAdapter != null) {
-            mAdapter.onInVisible();
+        if (mStatusAdapter != null) {
+            mStatusAdapter.onInVisible();
         }
     }
 
@@ -160,8 +160,8 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mAdapter != null) {
-            mAdapter.onDestroy();
+        if (mStatusAdapter != null) {
+            mStatusAdapter.onDestroy();
         }
     }
 
@@ -175,7 +175,7 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
     @Override
     public void scrollToBottom() {
         if (mRecyclerView != null) {
-            mRecyclerView.smoothScrollToPosition(mAdapter.getItemCount() - 1);
+            mRecyclerView.smoothScrollToPosition(mStatusAdapter.getItemCount() - 1);
         }
     }
 
@@ -189,8 +189,9 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
         }
     }
 
-    interface FeedActionListener {
-        void onFeedImageClick(View view, Status status);
+    interface StatusActionListener {
+        void onStatusImageClick(View view, Status status);
+        void onStatusItemClick(View view, Status status);
     }
 
     static class FeedViewHolder extends RecyclerView.ViewHolder {
@@ -218,7 +219,7 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
         }
     }
 
-    private class Adapter extends RecyclerView.Adapter<FeedViewHolder> {
+    private class StatusAdapter extends RecyclerView.Adapter<FeedViewHolder> {
 
         private final List<Status> data;
 
@@ -227,10 +228,10 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
         private DisplayOption mContentDisplayOption;
         private DisplayOption mAvatarDisplayOption;
 
-        private FeedActionListener mFeedActionListener;
+        private StatusActionListener mStatusActionListener;
 
-        public Adapter(List<Status> data, FeedActionListener feedActionListener) {
-            this.mFeedActionListener = feedActionListener;
+        public StatusAdapter(List<Status> data, StatusActionListener statusActionListener) {
+            this.mStatusActionListener = statusActionListener;
             this.data = data;
             this.mContentLoader = ImageLoader.create(getContext(), LoaderConfig.DEFAULT_CONFIG);
             this.mAvatarLoader = ImageLoader.create(getContext(),
@@ -274,6 +275,7 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
         @Override
         public void onBindViewHolder(final FeedViewHolder holder, final int position) {
             final Status item = data.get(position);
+            holder.itemView.setOnClickListener(new StatusItemListener(item, mStatusActionListener));
             holder.feedText.setText(item.text);
             holder.userNameView.setText(item.user.name);
             mAvatarLoader.displayImage(item.user.avatar_large, holder.userProfileView, mAvatarDisplayOption);
@@ -286,7 +288,7 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
             holder.likesCntView.setText(String.valueOf(item.attitudes_count));
             holder.commentCntView.setText(String.valueOf(item.comments_count));
             holder.repostCntView.setText(String.valueOf(item.reposts_count));
-            holder.feedImageView.setOnClickListener(new FeedImageListener(item, mFeedActionListener));
+            holder.feedImageView.setOnClickListener(new StatusImageListener(item, mStatusActionListener));
             holder.moreBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -330,7 +332,7 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
                         public void onResult(boolean ok) {
                             if (ok) {
                                 //noinspection ConstantConditions
-                                Snackbar.make(getView(), R.string.status_snapshot_save_result_ok, Snackbar.LENGTH_SHORT)
+                                Snackbar.make(getView(), R.string.status_snapshot_save_result_ok, Snackbar.LENGTH_LONG)
                                         .setAction(R.string.status_snapshot_action_view, new View.OnClickListener() {
                                             @Override
                                             public void onClick(View view) {
@@ -346,19 +348,39 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
         }
     }
 
-    class FeedImageListener implements View.OnClickListener {
+    class StatusItemListener extends StatusListener {
 
-        Status status;
-        FeedActionListener feedActionListener;
-
-        public FeedImageListener(Status status, FeedActionListener feedActionListener) {
-            this.status = status;
-            this.feedActionListener = feedActionListener;
+        public StatusItemListener(Status status, StatusActionListener statusActionListener) {
+            super(status, statusActionListener);
         }
 
         @Override
         public void onClick(View view) {
-            feedActionListener.onFeedImageClick(view, status);
+            statusActionListener.onStatusItemClick(view, status);
+        }
+    }
+
+    class StatusImageListener extends StatusListener {
+
+
+        public StatusImageListener(Status status, StatusActionListener statusActionListener) {
+            super(status, statusActionListener);
+        }
+
+        @Override
+        public void onClick(View view) {
+            statusActionListener.onStatusImageClick(view, status);
+        }
+    }
+
+    abstract class StatusListener implements View.OnClickListener {
+
+        Status status;
+        StatusActionListener statusActionListener;
+
+        public StatusListener(Status status, StatusActionListener statusActionListener) {
+            this.status = status;
+            this.statusActionListener = statusActionListener;
         }
     }
 }

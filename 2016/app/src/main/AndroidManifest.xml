@@ -31,13 +31,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".app.content.FeedImageViewerActivity">
+        <activity
+            android:name=".app.content.FeedImageViewerActivity"
+            android:theme="@style/AppThemeDark.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity android:name=".app.content.UserViewerActivity" />
         <activity
             android:name="com.sina.weibo.sdk.component.WeiboSdkBrowser"
             android:configChanges="keyboardHidden|orientation"
@@ -66,7 +69,6 @@
         <!-- android:name="com.sina.weibo.sdk.net.DownloadService" -->
         <!-- android:exported="false" > -->
         <!-- </service> -->
-
     </application>
 
 </manifest>

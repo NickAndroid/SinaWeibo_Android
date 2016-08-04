@@ -19,6 +19,8 @@ package com.sina.weibo.sdk.openapi.models;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.TextUtils;
 
 /**
@@ -27,7 +29,7 @@ import android.text.TextUtils;
  * @author SINA
  * @since 2013-11-24
  */
-public class Geo {
+public class Geo implements Parcelable{
     
     /** 经度坐标 */
     public String longitude;
@@ -47,7 +49,33 @@ public class Geo {
     public String pinyin;
     /** 更多信息，不是所有情况都会返回该字段 */
     public String more;
-    
+
+
+
+    protected Geo(Parcel in) {
+        longitude = in.readString();
+        latitude = in.readString();
+        city = in.readString();
+        province = in.readString();
+        city_name = in.readString();
+        province_name = in.readString();
+        address = in.readString();
+        pinyin = in.readString();
+        more = in.readString();
+    }
+
+    public static final Creator<Geo> CREATOR = new Creator<Geo>() {
+        @Override
+        public Geo createFromParcel(Parcel in) {
+            return new Geo(in);
+        }
+
+        @Override
+        public Geo[] newArray(int size) {
+            return new Geo[size];
+        }
+    };
+
     public static Geo parse(String jsonString) {
         if (TextUtils.isEmpty(jsonString)) {
             return null;
@@ -62,6 +90,9 @@ public class Geo {
         }
 
         return geo;
+    }
+
+    public Geo() {
     }
 
     public static Geo parse(JSONObject jsonObject) {
@@ -81,5 +112,23 @@ public class Geo {
         geo.more            = jsonObject.optString("more");
         
         return geo;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(longitude);
+        parcel.writeString(latitude);
+        parcel.writeString(city);
+        parcel.writeString(province);
+        parcel.writeString(city_name);
+        parcel.writeString(province_name);
+        parcel.writeString(address);
+        parcel.writeString(pinyin);
+        parcel.writeString(more);
     }
 }

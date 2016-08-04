@@ -16,6 +16,9 @@
 
 package com.sina.weibo.sdk.openapi.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 
 import org.json.JSONArray;
@@ -28,7 +31,7 @@ import org.json.JSONObject;
  * @author SINA
  * @since 2013-11-22
  */
-public class Status {
+public class Status implements Parcelable{
     
     /** 微博创建时间 */
     public String created_at;
@@ -80,6 +83,47 @@ public class Status {
     public Visible visible;
     /** 微博配图地址。多图时返回多图链接。无配图返回"[]" */
     public ArrayList<String> pic_urls;
+
+    public Status() {
+    }
+
+    protected Status(Parcel in) {
+        created_at = in.readString();
+        id = in.readString();
+        mid = in.readString();
+        idstr = in.readString();
+        text = in.readString();
+        source = in.readString();
+        favorited = in.readByte() != 0;
+        truncated = in.readByte() != 0;
+        in_reply_to_status_id = in.readString();
+        in_reply_to_user_id = in.readString();
+        in_reply_to_screen_name = in.readString();
+        thumbnail_pic = in.readString();
+        bmiddle_pic = in.readString();
+        original_pic = in.readString();
+        geo = in.readParcelable(Geo.class.getClassLoader());
+        user = in.readParcelable(User.class.getClassLoader());
+        retweeted_status = in.readParcelable(Status.class.getClassLoader());
+        reposts_count = in.readInt();
+        comments_count = in.readInt();
+        attitudes_count = in.readInt();
+        mlevel = in.readInt();
+        pic_urls = in.createStringArrayList();
+    }
+
+    public static final Creator<Status> CREATOR = new Creator<Status>() {
+        @Override
+        public Status createFromParcel(Parcel in) {
+            return new Status(in);
+        }
+
+        @Override
+        public Status[] newArray(int size) {
+            return new Status[size];
+        }
+    };
+
     /** 微博流内的推广微博ID */
     //public Ad ad;
     
@@ -142,5 +186,34 @@ public class Status {
         //status.ad = jsonObject.optString("ad", "");
         
         return status;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(created_at);
+        parcel.writeString(id);
+        parcel.writeString(mid);
+        parcel.writeString(idstr);
+        parcel.writeString(text);
+        parcel.writeString(source);
+        parcel.writeByte((byte) (favorited ? 1 : 0));
+        parcel.writeByte((byte) (truncated ? 1 : 0));
+        parcel.writeString(in_reply_to_status_id);
+        parcel.writeString(in_reply_to_user_id);
+        parcel.writeString(in_reply_to_screen_name);
+        parcel.writeString(thumbnail_pic);
+        parcel.writeString(bmiddle_pic);
+        parcel.writeString(original_pic);
+        parcel.writeParcelable(retweeted_status, i);
+        parcel.writeInt(reposts_count);
+        parcel.writeInt(comments_count);
+        parcel.writeInt(attitudes_count);
+        parcel.writeInt(mlevel);
+        parcel.writeStringList(pic_urls);
     }
 }

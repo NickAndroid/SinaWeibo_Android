@@ -31,6 +31,7 @@ import android.view.View;
 import com.nick.scalpel.Scalpel;
 import com.nick.scalpel.annotation.binding.FindStringArray;
 import com.nick.scalpel.annotation.binding.FindView;
+import com.nick.scalpel.annotation.opt.AutoRecycle;
 import com.nick.scalpel.annotation.opt.RetrieveBean;
 import com.nick.scalpel.annotation.request.RequirePermission;
 import com.roughike.bottombar.BottomBar;
@@ -49,7 +50,7 @@ import nick.dev.sina.app.widget.ColorUtils;
 import nick.dev.sina.sdk.AuthHelper;
 
 @RequirePermission
-public class NavigatorActivity extends AppCompatActivity implements TransactionManager, StatusFragment.FeedActionListener {
+public class NavigatorActivity extends AppCompatActivity implements TransactionManager, StatusFragment.StatusActionListener {
 
     final List<TransactionListener> transactionListeners = new ArrayList<>();
 
@@ -66,6 +67,7 @@ public class NavigatorActivity extends AppCompatActivity implements TransactionM
 
     FragmentController mController;
 
+    @AutoRecycle
     SparseIntArray idMap = new SparseIntArray();
 
     @RetrieveLogger
@@ -76,6 +78,10 @@ public class NavigatorActivity extends AppCompatActivity implements TransactionM
 
     @RetrieveBean(id = R.id.theme_provider)
     ThemeProvider mThemeProvider;
+
+    @RetrieveBean(singleton = true)
+    @AutoRecycle
+    TransactionCache mTransactionCache;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -182,7 +188,7 @@ public class NavigatorActivity extends AppCompatActivity implements TransactionM
     }
 
     @Override
-    public void onFeedImageClick(View view, Status status) {
+    public void onStatusImageClick(View view, Status status) {
         mLogger.funcEnter();
         Intent intent = new Intent(this, FeedImageViewerActivity.class);
         intent.putExtra("thumb", status.bmiddle_pic);
@@ -193,5 +199,13 @@ public class NavigatorActivity extends AppCompatActivity implements TransactionM
         } else {
             startActivity(intent);
         }
+    }
+
+    @Override
+    public void onStatusItemClick(View view, Status status) {
+        Intent intent = new Intent(this, UserViewerActivity.class);
+        intent.putExtra("trans_id", status.id);
+        mTransactionCache.put(status.id, status);
+        startActivity(intent);
     }
 }
