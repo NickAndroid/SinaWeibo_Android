@@ -1,4 +1,4 @@
 sinaBlog
 ========
 
-sina blog based on new nest API @ 2014.06
+Retarted at 2016
