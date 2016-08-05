@@ -22,7 +22,7 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".app.content.UserViewerActivity"
-    tools:showIn="@layout/activity_status_viewer">
+    tools:showIn="@layout/activity_user_viewer">
 
     <include layout="@layout/feed_item"/>
 

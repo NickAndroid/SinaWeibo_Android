@@ -49,6 +49,7 @@ import java.util.List;
 
 import dev.nick.imageloader.ImageLoader;
 import dev.nick.imageloader.LoaderConfig;
+import dev.nick.imageloader.cache.CachePolicy;
 import dev.nick.imageloader.display.DisplayOption;
 import dev.nick.imageloader.display.animator.ResAnimator;
 import dev.nick.imageloader.loader.network.NetworkPolicy;
@@ -191,7 +192,10 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
 
     interface StatusActionListener {
         void onStatusImageClick(View view, Status status);
+
         void onStatusItemClick(View view, Status status);
+
+        void onStatusAvatarClick(View view, Status status);
     }
 
     static class FeedViewHolder extends RecyclerView.ViewHolder {
@@ -212,9 +216,31 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
         TextView repostCntView;
         @FindView(id = R.id.comment_cnt)
         TextView commentCntView;
+        @FindView(id = R.id.repost_content)
+        ViewGroup repostContentView;
+
+        RepostHolder repostHolder;
 
         public FeedViewHolder(final View itemView) {
             super(itemView);
+            Scalpel.getInstance().wire(itemView, this);
+            repostHolder = new RepostHolder(repostContentView);
+        }
+    }
+
+    static class RepostHolder {
+
+        @FindView(id = R.id.repost_feed_img)
+        ImageView feedImageView;
+        @FindView(id = R.id.repost_feed_text)
+        TextView feedText;
+        @FindView(id = R.id.repost_user_profile_name)
+        TextView userNameView;
+
+        @FindView(id = R.id.tag)
+        TextView tagView;
+
+        public RepostHolder(final View itemView) {
             Scalpel.getInstance().wire(itemView, this);
         }
     }
@@ -223,47 +249,41 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
 
         private final List<Status> data;
 
-        private ImageLoader mAvatarLoader;
-        private ImageLoader mContentLoader;
-        private DisplayOption mContentDisplayOption;
-        private DisplayOption mAvatarDisplayOption;
+        private ImageLoader mImageLoader;
+        private DisplayOption mDisplayOption;
 
         private StatusActionListener mStatusActionListener;
 
         public StatusAdapter(List<Status> data, StatusActionListener statusActionListener) {
             this.mStatusActionListener = statusActionListener;
             this.data = data;
-            this.mContentLoader = ImageLoader.create(getContext(), LoaderConfig.DEFAULT_CONFIG);
-            this.mAvatarLoader = ImageLoader.create(getContext(),
-                    new LoaderConfig
-                            .Builder()
-                            .networkPolicy(new NetworkPolicy
-                                    .Builder()
-                                    .build()).build());
-            this.mContentDisplayOption = new DisplayOption.Builder()
+            this.mImageLoader = ImageLoader.create(getContext(),
+                    LoaderConfig.builder()
+                            .networkPolicy(NetworkPolicy.builder()
+                                    .enableTrafficStats()
+                                    .build())
+                            .cachePolicy(CachePolicy.builder()
+                                    .enableStorgeStats()
+                                    .build())
+                            .build());
+            this.mDisplayOption = new DisplayOption.Builder()
                     .viewMaybeReused()
-                    .imageAnimator(ResAnimator.from(getContext(), R.anim.grow_fade_in_from_bottom))
-                    .build();
-            this.mAvatarDisplayOption = new DisplayOption.Builder()
-                    .viewMaybeReused()
+                    .oneAfterOne()
                     .imageAnimator(ResAnimator.from(getContext(), R.anim.grow_fade_in_from_bottom))
                     .build();
         }
 
         public void onDestroy() {
-            mAvatarLoader.terminate();
-            mContentLoader.terminate();
+            mImageLoader.terminate();
         }
 
         public void onVisible() {
             LoggerManager.getLogger(getClass()).funcEnter();
-            mAvatarLoader.resume();
-            mContentLoader.resume();
+            mImageLoader.resume();
         }
 
         public void onInVisible() {
-            mContentLoader.pause();
-            mAvatarLoader.pause();
+            mImageLoader.pause();
         }
 
         @Override
@@ -274,30 +294,64 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
 
         @Override
         public void onBindViewHolder(final FeedViewHolder holder, final int position) {
-            final Status item = data.get(position);
-            holder.itemView.setOnClickListener(new StatusItemListener(item, mStatusActionListener));
-            holder.feedText.setText(item.text);
-            holder.userNameView.setText(item.user.name);
-            mAvatarLoader.displayImage(item.user.avatar_large, holder.userProfileView, mAvatarDisplayOption);
-            if (!TextUtils.isEmpty(item.bmiddle_pic)) {
+            Status item = data.get(position);
+
+            final Status status = item;
+            final Status repost = item.retweeted_status;
+            boolean isRepost = repost != null;
+
+            holder.feedText.setText(status.text);
+            holder.userNameView.setText(status.user.name);
+
+            mImageLoader.display(status.user.avatar_large, holder.userProfileView, mDisplayOption);
+            if (!TextUtils.isEmpty(status.bmiddle_pic)) {
                 holder.feedImageView.setVisibility(View.VISIBLE);
-                mContentLoader.displayImage(item.bmiddle_pic, holder.feedImageView, mContentDisplayOption);
+                mImageLoader.display(status.bmiddle_pic, holder.feedImageView, mDisplayOption);
             } else {
                 holder.feedImageView.setVisibility(View.GONE);
             }
-            holder.likesCntView.setText(String.valueOf(item.attitudes_count));
-            holder.commentCntView.setText(String.valueOf(item.comments_count));
-            holder.repostCntView.setText(String.valueOf(item.reposts_count));
-            holder.feedImageView.setOnClickListener(new StatusImageListener(item, mStatusActionListener));
+
+            holder.likesCntView.setText(String.valueOf(status.attitudes_count));
+            holder.commentCntView.setText(String.valueOf(status.comments_count));
+            holder.repostCntView.setText(String.valueOf(status.reposts_count));
+
+            holder.feedImageView.setOnClickListener(new StatusImageListener(status, mStatusActionListener));
+            holder.userProfileView.setOnClickListener(new StatusAvatarListener(status, mStatusActionListener));
+            holder.userNameView.setOnClickListener(new StatusNameListener(status, mStatusActionListener));
+            holder.itemView.setOnClickListener(new StatusItemListener(status, mStatusActionListener));
+
             holder.moreBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     PopupMenu popupMenu = new PopupMenu(getContext(), view);
                     popupMenu.inflate(R.menu.feed_item);
-                    popupMenu.setOnMenuItemClickListener(new PopMenuListener(holder.itemView, item));
+                    popupMenu.setOnMenuItemClickListener(new PopMenuListener(holder.itemView, status));
                     popupMenu.show();
                 }
             });
+
+            mLogger.verbose(isRepost);
+
+            holder.repostContentView.setVisibility(isRepost ? View.VISIBLE : View.GONE);
+
+            if (isRepost) {
+                onBindRepostHolder(holder.repostHolder, repost);
+            }
+        }
+
+        void onBindRepostHolder(RepostHolder holder, Status status) {
+
+            holder.feedImageView.setOnClickListener(new StatusImageListener(status, mStatusActionListener));
+            holder.userNameView.setOnClickListener(new StatusNameListener(status, mStatusActionListener));
+            holder.feedText.setText(status.text);
+            holder.userNameView.setText(status.user.name);
+
+            if (!TextUtils.isEmpty(status.bmiddle_pic)) {
+                holder.feedImageView.setVisibility(View.VISIBLE);
+                mImageLoader.display(status.bmiddle_pic, holder.feedImageView, mDisplayOption);
+            } else {
+                holder.feedImageView.setVisibility(View.GONE);
+            }
         }
 
         @Override
@@ -357,6 +411,24 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
         @Override
         public void onClick(View view) {
             statusActionListener.onStatusItemClick(view, status);
+        }
+    }
+
+    class StatusNameListener extends StatusAvatarListener {
+        public StatusNameListener(Status status, StatusActionListener statusActionListener) {
+            super(status, statusActionListener);
+        }
+    }
+
+    class StatusAvatarListener extends StatusListener {
+
+        public StatusAvatarListener(Status status, StatusActionListener statusActionListener) {
+            super(status, statusActionListener);
+        }
+
+        @Override
+        public void onClick(View view) {
+            statusActionListener.onStatusAvatarClick(view, status);
         }
     }
 

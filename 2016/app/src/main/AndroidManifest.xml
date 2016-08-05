@@ -41,6 +41,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".app.content.UserViewerActivity" />
+        <activity android:name=".app.content.SettingsActivity" />
+        <activity android:name=".app.content.FeedBackActivity" />
         <activity
             android:name="com.sina.weibo.sdk.component.WeiboSdkBrowser"
             android:configChanges="keyboardHidden|orientation"

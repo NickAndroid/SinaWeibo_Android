@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Feeds</string>
+
+    <string name="tab_title_status">状态</string>
+    <string name="tab_title_message">Message</string>
+    <string name="title_activity_scrolling">ScrollingActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_status_snapshot">保存为卡片</string>
+    <string name="status_snapshot_save_result_ok">卡片已经保存</string>
+    <string name="status_snapshot_action_view">查看</string>
+    <string name="status_tag_original">原文</string>
+    <string name="status_tag_repost">转发</string>
+    <string name="title_activity_status_viewer">StatusViewerActivity</string>
+</resources>

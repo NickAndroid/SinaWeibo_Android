@@ -26,6 +26,8 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.SparseIntArray;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.nick.scalpel.Scalpel;
@@ -50,7 +52,8 @@ import nick.dev.sina.app.widget.ColorUtils;
 import nick.dev.sina.sdk.AuthHelper;
 
 @RequirePermission
-public class NavigatorActivity extends AppCompatActivity implements TransactionManager, StatusFragment.StatusActionListener {
+public class NavigatorActivity extends AppCompatActivity
+        implements TransactionManager, StatusFragment.StatusActionListener {
 
     final List<TransactionListener> transactionListeners = new ArrayList<>();
 
@@ -108,7 +111,7 @@ public class NavigatorActivity extends AppCompatActivity implements TransactionM
 
         mBottomBar = BottomBar.attachShy(mCoordinator, findViewById(R.id.container), savedInstanceState);
         mBottomBar.noTopOffset();
-        mBottomBar.setItems(R.menu.navigator);
+        mBottomBar.setItems(R.menu.navigator_tabs);
 
         mapColorForTab(R.id.nav_status, 0);
         mapColorForTab(R.id.nav_message, 1);
@@ -203,9 +206,33 @@ public class NavigatorActivity extends AppCompatActivity implements TransactionM
 
     @Override
     public void onStatusItemClick(View view, Status status) {
+
+    }
+
+    @Override
+    public void onStatusAvatarClick(View view, Status status) {
         Intent intent = new Intent(this, UserViewerActivity.class);
         intent.putExtra("trans_id", status.id);
         mTransactionCache.put(status.id, status);
         startActivity(intent);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.navigator, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                break;
+            case R.id.feed_back:
+                startActivity(new Intent(this, FeedBackActivity.class));
+                break;
+        }
+        return true;
     }
 }

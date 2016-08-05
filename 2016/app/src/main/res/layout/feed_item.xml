@@ -1,72 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?><!-- item_feed.xml -->
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    xmlns:app="http://schemas.android.com/tools"
     android:id="@+id/card_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:foreground="?android:attr/selectableItemBackground"
     android:layout_gravity="center"
     android:layout_margin="6dp"
-    card_view:cardCornerRadius="4dp">
+    card_view:cardCornerRadius="2dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <RelativeLayout
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent">
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/user_profile_img"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_margin="4dp"
-                app:civ_border_width="3dp"
-                app:civ_border_color="@color/accent"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/user_profile_name"
-                android:layout_toEndOf="@+id/user_profile_img"
-                android:textColor="@color/primary_text"
-                android:textStyle="bold"
-                android:layout_centerVertical="true"
-                android:padding="3dp"
-                android:layout_marginStart="5dp"
-                android:layout_toRightOf="@+id/user_profile_img"
-                android:layout_marginLeft="5dp" />
-            <ImageButton
-                android:id="@+id/button_more"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_marginRight="8dp"
-                android:layout_alignParentEnd="true"
-                android:background="@drawable/btn_feed_action"
-                android:src="@drawable/ic_more_grey"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"/>
-        </RelativeLayout>
+        <include layout="@layout/feed_content" />
 
-        <TextView
-            android:id="@+id/feed_text"
-            android:padding="6dp"
-            android:textColor="@color/primary_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <FrameLayout
-            android:id="@+id/img_root"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <ImageView
-                android:id="@+id/feed_img"
-                android:layout_width="match_parent"
-                android:scaleType="centerCrop"
-                android:layout_height="300dp" />
-
-        </FrameLayout>
+        <include layout="@layout/repost_content" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -75,31 +25,31 @@
 
             <ImageButton
                 android:id="@+id/button_like"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="@dimen/action_btn_size"
+                android:layout_height="@dimen/action_btn_size"
                 android:background="@drawable/btn_feed_action"
                 android:src="@drawable/ic_heart_outline_grey" />
 
             <TextView
+                android:id="@+id/repost_cnt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/repost_cnt"
                 android:layout_gravity="center_vertical"
                 android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
                 android:textColor="@color/secondary_text" />
 
             <ImageButton
                 android:id="@+id/button_comment"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="@dimen/action_btn_size"
+                android:layout_height="@dimen/action_btn_size"
                 android:layout_marginLeft="8dp"
                 android:background="@drawable/btn_feed_action"
-                android:src="@drawable/ic_comment_outline_grey"/>
+                android:src="@drawable/ic_comment_outline_grey" />
 
             <TextView
+                android:id="@+id/comment_cnt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/comment_cnt"
                 android:layout_gravity="center_vertical"
                 android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
                 android:textColor="@color/secondary_text" />
@@ -111,8 +61,8 @@
                 android:gravity="center_vertical|right">
 
                 <ImageButton
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
+                    android:layout_width="@dimen/action_btn_size"
+                    android:layout_height="@dimen/action_btn_size"
                     android:background="@drawable/btn_feed_action"
                     android:src="@drawable/ic_heart_outline_grey" />
 
@@ -120,7 +70,6 @@
                     android:id="@+id/likes_cnt"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
                     android:layout_marginRight="8dp"
                     android:inAnimation="@anim/slide_in_likes_counter"
                     android:outAnimation="@anim/slide_out_likes_counter">

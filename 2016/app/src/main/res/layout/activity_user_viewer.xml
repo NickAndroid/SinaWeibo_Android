@@ -53,13 +53,13 @@
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/user_profile_img"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
+                    android:layout_width="@dimen/avatar_size_large"
+                    android:layout_height="@dimen/avatar_size_large"
                     android:layout_centerHorizontal="true"
                     android:layout_centerVertical="true"
                     android:layout_margin="4dp"
-                    app:civ_border_color="@color/accent"
-                    app:civ_border_width="1dp" />
+                    app:civ_border_color="@android:color/white"
+                    app:civ_border_width="2dp" />
             </RelativeLayout>
 
 

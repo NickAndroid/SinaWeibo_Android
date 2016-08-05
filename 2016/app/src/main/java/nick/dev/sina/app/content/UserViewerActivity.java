@@ -16,6 +16,7 @@
 
 package nick.dev.sina.app.content;
 
+import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -40,17 +41,17 @@ import com.sina.weibo.sdk.openapi.models.Status;
 import com.sina.weibo.sdk.openapi.models.StatusList;
 import com.sina.weibo.sdk.openapi.models.User;
 
+import dev.nick.imageloader.DisplayListener;
 import dev.nick.imageloader.ImageLoader;
 import dev.nick.imageloader.display.DisplayOption;
 import dev.nick.imageloader.display.animator.FadeInImageAnimator;
-import dev.nick.imageloader.display.processor.BlurBitmapProcessor;
+import dev.nick.imageloader.display.handler.BlurBitmapHandler;
 import dev.nick.imageloader.loader.result.BitmapResult;
 import dev.nick.logger.Logger;
 import dev.nick.logger.LoggerManager;
 import nick.dev.sina.R;
 import nick.dev.sina.app.annotation.RetrieveLogger;
 import nick.dev.sina.app.content.adapter.StatusAdapter;
-import nick.dev.sina.app.opt.DisplayListenerStub;
 import nick.dev.sina.app.widget.ColorUtils;
 import nick.dev.sina.sdk.AccessTokenKeeper;
 import nick.dev.sina.sdk.SdkConfig;
@@ -73,6 +74,9 @@ public class UserViewerActivity extends ScalpelAutoActivity {
 
     @FindView(id = R.id.recycler_view)
     RecyclerView mRecyclerView;
+
+    @FindView(id = R.id.toolbar_layout)
+    CollapsingToolbarLayout mCollapsingToolbar;
 
     StatusAdapter mStatusAdapter;
 
@@ -103,46 +107,43 @@ public class UserViewerActivity extends ScalpelAutoActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_status_viewer);
-        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+
+        setContentView(R.layout.activity_user_viewer);
+        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Status status = (Status) mTransactionCache.get(getIntent().getStringExtra("trans_id"));
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        CollapsingToolbarLayout collapsingToolbar =
-                (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
-        collapsingToolbar.setTitle(status.user.screen_name);
+        mCollapsingToolbar.setTitle(status.user.screen_name);
 
         initApi();
 
-        ImageLoader.shared(this).displayImage(status.user.avatar_hd, backDropView, new DisplayOption.Builder()
-                .bitmapProcessor(new BlurBitmapProcessor(20))
-                .imageAnimator(new FadeInImageAnimator()).build(), new DisplayListenerStub() {
+        ImageLoader.shared(this).display(status.user.avatar_hd, backDropView, new DisplayOption.Builder()
+                .bitmapHandler(new BlurBitmapHandler())
+                .imageAnimator(new FadeInImageAnimator()).build(), new DisplayListener.Stub() {
             @Override
             public void onComplete(@Nullable BitmapResult result) {
                 super.onComplete(result);
-                if (result != null && result.result != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && result != null && result.result != null) {
                     Palette.from(result.result).generate(new Palette.PaletteAsyncListener() {
+                        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
                         @Override
                         public void onGenerated(Palette palette) {
                             LoggerManager.getLogger(FeedImageViewerActivity.class).funcEnter();
                             int defColor = ContextCompat.getColor(UserViewerActivity.this, R.color.primary);
                             int themeColor = palette.getLightVibrantColor(defColor);
                             int themeColorDark = ColorUtils.colorBurn(palette.getLightVibrantColor(defColor));
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                getWindow().setStatusBarColor(themeColorDark);
-                                getWindow().setNavigationBarColor(themeColorDark);
-                                toolbar.setBackgroundColor(themeColor);
-                            }
+                            getWindow().setStatusBarColor(themeColorDark);
+                            getWindow().setNavigationBarColor(themeColorDark);
+                            mCollapsingToolbar.setStatusBarScrimColor(themeColor);
+                            mCollapsingToolbar.setContentScrimColor(themeColor);
                         }
                     });
                 }
             }
         });
 
-        ImageLoader.shared(this).displayImage(status.user.avatar_hd, userProfileView);
+        ImageLoader.shared(this).display(status.user.avatar_hd, userProfileView);
 
         requestStatus(status.user);
     }

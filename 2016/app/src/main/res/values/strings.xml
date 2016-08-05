@@ -5,9 +5,12 @@
     <string name="tab_title_message">Message</string>
     <string name="title_activity_scrolling">ScrollingActivity</string>
     <string name="action_settings">Settings</string>
+    <string name="action_feedback">Feedback&amp;Help</string>
     <string name="action_status_snapshot">Snapshot</string>
     <string name="status_snapshot_save_result_ok">Snapshot has been saved</string>
     <string name="status_snapshot_action_view">View</string>
+    <string name="status_tag_original">Original</string>
+    <string name="status_tag_repost">Repost</string>
     <string name="title_activity_status_viewer">StatusViewerActivity</string>
     <string name="large_text">
         "Material is the metaphor.\n\n"

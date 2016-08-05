@@ -50,7 +50,7 @@ public class SinaApp extends ScalpelApplication {
     public void onCreate() {
         super.onCreate();
         LoggerManager.setTagPrefix(getClass().getSimpleName());
-        LoggerManager.setDebugLevel(Log.WARN);
+        LoggerManager.setDebugLevel(Log.VERBOSE);
     }
 
     @Override

@@ -16,16 +16,12 @@
 
 package nick.dev.sina.app.content;
 
-import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.graphics.Palette;
-import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.widget.ImageView;
 
 import com.nick.scalpel.ScalpelAutoActivity;
@@ -36,10 +32,7 @@ import dev.nick.imageloader.DisplayListener;
 import dev.nick.imageloader.ImageLoader;
 import dev.nick.imageloader.display.DisplayOption;
 import dev.nick.imageloader.display.ImageQuality;
-import dev.nick.imageloader.display.ImageSettable;
-import dev.nick.imageloader.display.processor.BlurBitmapProcessor;
 import dev.nick.imageloader.loader.result.BitmapResult;
-import dev.nick.imageloader.loader.result.Cause;
 import dev.nick.logger.LoggerManager;
 import nick.dev.sina.R;
 import nick.dev.sina.app.widget.ColorUtils;
@@ -61,16 +54,16 @@ public class FeedImageViewerActivity extends ScalpelAutoActivity {
 
         String thumb = getIntent().getStringExtra("thumb");
 
-     //   ImageLoader.shared(this).displayImage(thumb, mImageView);
+        //   ImageLoader.shared(this).displayImage(thumb, mImageView);
 
         String url = getIntent().getStringExtra("url");
 
         ImageLoader.shared(this)
-                .displayImage(url, mImageView,
+                .display(url, mImageView,
                         new DisplayOption.Builder()
                                 .imageQuality(ImageQuality.RAW)
                                 .oneAfterOne()
-                                .build(), new DisplayListenerStub() {
+                                .build(), new DisplayListener.Stub() {
                             @Override
                             public void onComplete(@Nullable BitmapResult result) {
                                 LoggerManager.getLogger(FeedImageViewerActivity.class).funcEnter();
@@ -96,33 +89,5 @@ public class FeedImageViewerActivity extends ScalpelAutoActivity {
     public void finish() {
         super.finish();
         overridePendingTransition(0, R.anim.activity_out);
-    }
-
-    class DisplayListenerStub implements DisplayListener {
-
-        @Override
-        public void onError(@NonNull Cause cause) {
-
-        }
-
-        @Override
-        public void onComplete(@Nullable BitmapResult result) {
-
-        }
-
-        @Override
-        public void onProgressUpdate(float progress) {
-
-        }
-
-        @Override
-        public void onCancel() {
-
-        }
-
-        @Override
-        public void onStartLoading() {
-
-        }
     }
 }

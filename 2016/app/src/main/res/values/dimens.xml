@@ -9,4 +9,8 @@
     <dimen name="app_bar_height">300dp</dimen>
     <dimen name="text_margin">16dp</dimen>
     <dimen name="avatar_margin">16dp</dimen>
+
+    <dimen name="action_btn_size">32dp</dimen>
+
+    <dimen name="avatar_size_large">76dp</dimen>
 </resources>

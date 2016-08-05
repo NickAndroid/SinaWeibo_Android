@@ -60,13 +60,10 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.FeedViewHo
         this.mContext = context;
         this.mStatusActionListener = statusActionListener;
         this.data = data;
-        this.mContentLoader = ImageLoader.create(mContext, LoaderConfig.DEFAULT_CONFIG);
-        this.mAvatarLoader = ImageLoader.create(mContext,
-                new LoaderConfig
-                        .Builder()
-                        .networkPolicy(new NetworkPolicy
-                                .Builder()
-                                .build()).build());
+        this.mAvatarLoader = ImageLoader.create(mContext, LoaderConfig.builder()
+                .networkPolicy(NetworkPolicy.builder()
+                        .build()).build());
+        this.mContentLoader = mAvatarLoader;
         this.mContentDisplayOption = new DisplayOption.Builder()
                 .viewMaybeReused()
                 .imageAnimator(ResAnimator.from(mContext, R.anim.grow_fade_in_from_bottom))
@@ -105,10 +102,10 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.FeedViewHo
         holder.itemView.setOnClickListener(new StatusItemListener(item, mStatusActionListener));
         holder.feedText.setText(item.text);
         holder.userNameView.setText(item.user.name);
-        mAvatarLoader.displayImage(item.user.avatar_large, holder.userProfileView, mAvatarDisplayOption);
+        mAvatarLoader.display(item.user.avatar_large, holder.userProfileView, mAvatarDisplayOption);
         if (!TextUtils.isEmpty(item.bmiddle_pic)) {
             holder.feedImageView.setVisibility(View.VISIBLE);
-            mContentLoader.displayImage(item.bmiddle_pic, holder.feedImageView, mContentDisplayOption);
+            mContentLoader.display(item.bmiddle_pic, holder.feedImageView, mContentDisplayOption);
         } else {
             holder.feedImageView.setVisibility(View.GONE);
         }

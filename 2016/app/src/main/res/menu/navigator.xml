@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2016 Nick Guo
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,23 +17,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/nav_status"
-        android:icon="@drawable/ic_whatshot_black_24dp"
-        android:title="@string/tab_title_status" />
+        android:id="@+id/action_settings"
+        android:title="@string/action_settings" />
     <item
-        android:id="@+id/nav_message"
-        android:icon="@drawable/ic_mail_outline_black_24dp"
-        android:title="@string/tab_title_message" />
-    <item
-        android:id="@+id/nav_hot"
-        android:icon="@drawable/ic_account_circle_black_24dp"
-        android:title="Nearby" />
-    <item
-        android:id="@+id/nav_me"
-        android:icon="@drawable/ic_person_black_24dp"
-        android:title="Friends" />
-    <item
-        android:id="@+id/nav_config"
-        android:icon="@drawable/ic_whatshot_black_24dp"
-        android:title="Food" />
+        android:id="@+id/feed_back"
+        android:title="@string/action_feedback" />
 </menu>
