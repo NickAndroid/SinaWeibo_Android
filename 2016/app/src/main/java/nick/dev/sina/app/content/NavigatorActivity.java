@@ -46,6 +46,7 @@ import java.util.List;
 import dev.nick.imageloader.logger.Logger;
 import nick.dev.sina.R;
 import nick.dev.sina.app.annotation.RetrieveLogger;
+import nick.dev.sina.app.content.adapter.StatusActionListener;
 import nick.dev.sina.app.provider.SettingsProvider;
 import nick.dev.sina.app.provider.ThemeProvider;
 import nick.dev.sina.app.widget.ColorUtils;
@@ -53,7 +54,7 @@ import nick.dev.sina.sdk.AuthHelper;
 
 @RequirePermission
 public class NavigatorActivity extends AppCompatActivity
-        implements TransactionManager, StatusFragment.StatusActionListener {
+        implements TransactionManager, StatusActionListener {
 
     final List<TransactionListener> transactionListeners = new ArrayList<>();
 

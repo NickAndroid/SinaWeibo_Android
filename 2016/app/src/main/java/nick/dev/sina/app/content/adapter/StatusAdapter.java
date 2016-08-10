@@ -36,10 +36,8 @@ import com.sina.weibo.sdk.openapi.models.Status;
 import java.util.List;
 
 import dev.nick.imageloader.ImageLoader;
-import dev.nick.imageloader.LoaderConfig;
 import dev.nick.imageloader.display.DisplayOption;
 import dev.nick.imageloader.display.animator.ResAnimator;
-import dev.nick.imageloader.loader.network.NetworkPolicy;
 import dev.nick.imageloader.logger.LoggerManager;
 import nick.dev.sina.R;
 
@@ -47,10 +45,8 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.FeedViewHo
 
     private final List<Status> data;
 
-    private ImageLoader mAvatarLoader;
-    private ImageLoader mContentLoader;
-    private DisplayOption mContentDisplayOption;
-    private DisplayOption mAvatarDisplayOption;
+    private ImageLoader mImageLoader;
+    private DisplayOption mDisplayOption;
 
     private StatusActionListener mStatusActionListener;
 
@@ -60,32 +56,26 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.FeedViewHo
         this.mContext = context;
         this.mStatusActionListener = statusActionListener;
         this.data = data;
-        this.mAvatarLoader = ImageLoader.shared();
-        this.mContentLoader = mAvatarLoader;
-        this.mContentDisplayOption = DisplayOption.builder()
+        this.mImageLoader = ImageLoader.shared();
+        this.mDisplayOption = DisplayOption.builder()
+                .showWithDefault(R.drawable.aio_image_fail)
                 .viewMaybeReused()
-                .imageAnimator(ResAnimator.from(mContext, R.anim.grow_fade_in_from_bottom))
-                .build();
-        this.mAvatarDisplayOption = DisplayOption.builder()
-                .viewMaybeReused()
+                .oneAfterOne()
                 .imageAnimator(ResAnimator.from(mContext, R.anim.grow_fade_in_from_bottom))
                 .build();
     }
 
     public void onDestroy() {
-        mAvatarLoader.terminate();
-        mContentLoader.terminate();
     }
 
     public void onVisible() {
         LoggerManager.getLogger(getClass()).funcEnter();
-        mAvatarLoader.resume();
-        mContentLoader.resume();
+        mImageLoader.resume();
     }
 
     public void onInVisible() {
-        mContentLoader.pause();
-        mAvatarLoader.pause();
+        mImageLoader.pause();
+        mImageLoader.pause();
     }
 
     @Override
@@ -96,49 +86,80 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.FeedViewHo
 
     @Override
     public void onBindViewHolder(final FeedViewHolder holder, final int position) {
-        final Status item = data.get(position);
-        holder.itemView.setOnClickListener(new StatusItemListener(item, mStatusActionListener));
-        holder.feedText.setText(item.text);
-        holder.userNameView.setText(item.user.name);
-        mAvatarLoader.load()
-                .from(item.user.avatar_large)
-                .option(mAvatarDisplayOption)
+        Status item = data.get(position);
+
+        final Status status = item;
+        final Status repost = item.retweeted_status;
+        boolean isRepost = repost != null;
+
+        holder.feedText.setText(status.text);
+        holder.userNameView.setText(status.user.name);
+
+        mImageLoader.load()
+                .from(status.user.avatar_large)
                 .into(holder.userProfileView)
+                .option(mDisplayOption)
                 .start();
-        if (!TextUtils.isEmpty(item.bmiddle_pic)) {
+
+        if (!TextUtils.isEmpty(status.bmiddle_pic)) {
             holder.feedImageView.setVisibility(View.VISIBLE);
-            mContentLoader.load()
-                    .from(item.bmiddle_pic)
-                    .option(mContentDisplayOption)
+            mImageLoader.load()
+                    .from(status.bmiddle_pic)
                     .into(holder.feedImageView)
+                    .option(mDisplayOption)
                     .start();
         } else {
             holder.feedImageView.setVisibility(View.GONE);
         }
-        holder.likesCntView.setText(String.valueOf(item.attitudes_count));
-        holder.commentCntView.setText(String.valueOf(item.comments_count));
-        holder.repostCntView.setText(String.valueOf(item.reposts_count));
-        holder.feedImageView.setOnClickListener(new StatusImageListener(item, mStatusActionListener));
+
+        holder.likesCntView.setText(String.valueOf(status.attitudes_count));
+        holder.commentCntView.setText(String.valueOf(status.comments_count));
+        holder.repostCntView.setText(String.valueOf(status.reposts_count));
+
+        holder.feedImageView.setOnClickListener(new StatusImageListener(status, mStatusActionListener));
+        holder.userProfileView.setOnClickListener(new StatusAvatarListener(status, mStatusActionListener));
+        holder.userNameView.setOnClickListener(new StatusNameListener(status, mStatusActionListener));
+        holder.itemView.setOnClickListener(new StatusItemListener(status, mStatusActionListener));
+
         holder.moreBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 PopupMenu popupMenu = new PopupMenu(mContext, view);
                 popupMenu.inflate(R.menu.feed_item);
-                popupMenu.setOnMenuItemClickListener(new PopMenuListener(holder.itemView, item));
+                popupMenu.setOnMenuItemClickListener(new PopMenuListener(holder.itemView, status));
                 popupMenu.show();
             }
         });
+
+        holder.repostContentView.setVisibility(isRepost ? View.VISIBLE : View.GONE);
+
+        if (isRepost) {
+            onBindRepostHolder(holder.repostHolder, repost);
+        }
+    }
+
+    void onBindRepostHolder(RepostHolder holder, Status status) {
+
+        holder.feedImageView.setOnClickListener(new StatusImageListener(status, mStatusActionListener));
+        holder.userNameView.setOnClickListener(new StatusNameListener(status, mStatusActionListener));
+        holder.feedText.setText(status.text);
+        holder.userNameView.setText(status.user.name);
+
+        if (!TextUtils.isEmpty(status.bmiddle_pic)) {
+            holder.feedImageView.setVisibility(View.VISIBLE);
+            mImageLoader.load()
+                    .from(status.bmiddle_pic)
+                    .into(holder.feedImageView)
+                    .option(mDisplayOption)
+                    .start();
+        } else {
+            holder.feedImageView.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public int getItemCount() {
         return data.size();
-    }
-
-    public interface StatusActionListener {
-        void onStatusImageClick(View view, Status status);
-
-        void onStatusItemClick(View view, Status status);
     }
 
     static class FeedViewHolder extends RecyclerView.ViewHolder {
@@ -159,12 +180,35 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.FeedViewHo
         TextView repostCntView;
         @FindView(id = R.id.comment_cnt)
         TextView commentCntView;
+        @FindView(id = R.id.repost_content)
+        ViewGroup repostContentView;
+
+        RepostHolder repostHolder;
 
         public FeedViewHolder(final View itemView) {
             super(itemView);
             Scalpel.getInstance().wire(itemView, this);
+            repostHolder = new RepostHolder(repostContentView);
         }
     }
+
+    static class RepostHolder {
+
+        @FindView(id = R.id.repost_feed_img)
+        ImageView feedImageView;
+        @FindView(id = R.id.repost_feed_text)
+        TextView feedText;
+        @FindView(id = R.id.repost_user_profile_name)
+        TextView userNameView;
+
+        @FindView(id = R.id.tag)
+        TextView tagView;
+
+        public RepostHolder(final View itemView) {
+            Scalpel.getInstance().wire(itemView, this);
+        }
+    }
+
 
     class PopMenuListener implements PopupMenu.OnMenuItemClickListener {
 
@@ -230,6 +274,24 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.FeedViewHo
         @Override
         public void onClick(View view) {
             statusActionListener.onStatusImageClick(view, status);
+        }
+    }
+
+    class StatusNameListener extends StatusAvatarListener {
+        public StatusNameListener(Status status, StatusActionListener statusActionListener) {
+            super(status, statusActionListener);
+        }
+    }
+
+    class StatusAvatarListener extends StatusListener {
+
+        public StatusAvatarListener(Status status, StatusActionListener statusActionListener) {
+            super(status, statusActionListener);
+        }
+
+        @Override
+        public void onClick(View view) {
+            statusActionListener.onStatusAvatarClick(view, status);
         }
     }
 

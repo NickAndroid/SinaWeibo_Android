@@ -48,15 +48,13 @@ import java.io.File;
 import java.util.List;
 
 import dev.nick.imageloader.ImageLoader;
-import dev.nick.imageloader.LoaderConfig;
-import dev.nick.imageloader.cache.CachePolicy;
 import dev.nick.imageloader.display.DisplayOption;
 import dev.nick.imageloader.display.animator.ResAnimator;
-import dev.nick.imageloader.loader.network.NetworkPolicy;
 import dev.nick.imageloader.logger.Logger;
 import dev.nick.imageloader.logger.LoggerManager;
 import nick.dev.sina.R;
 import nick.dev.sina.app.annotation.RetrieveLogger;
+import nick.dev.sina.app.content.adapter.StatusActionListener;
 import nick.dev.sina.app.provider.SettingsProvider;
 import nick.dev.sina.app.utils.BitmapUtils;
 import nick.dev.sina.sdk.AccessTokenKeeper;
@@ -190,14 +188,6 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
         }
     }
 
-    interface StatusActionListener {
-        void onStatusImageClick(View view, Status status);
-
-        void onStatusItemClick(View view, Status status);
-
-        void onStatusAvatarClick(View view, Status status);
-    }
-
     static class FeedViewHolder extends RecyclerView.ViewHolder {
 
         @FindView(id = R.id.user_profile_img)
@@ -259,6 +249,7 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
             this.data = data;
             this.mImageLoader = ImageLoader.shared();
             this.mDisplayOption = DisplayOption.builder()
+                    .showWithDefault(R.drawable.aio_image_fail)
                     .viewMaybeReused()
                     .oneAfterOne()
                     .imageAnimator(ResAnimator.from(getContext(), R.anim.grow_fade_in_from_bottom))
@@ -266,7 +257,6 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
         }
 
         public void onDestroy() {
-            mImageLoader.terminate();
         }
 
         public void onVisible() {

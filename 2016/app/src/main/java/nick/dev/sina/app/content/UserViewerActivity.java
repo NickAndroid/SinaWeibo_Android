@@ -51,6 +51,7 @@ import dev.nick.imageloader.logger.Logger;
 import dev.nick.imageloader.logger.LoggerManager;
 import nick.dev.sina.R;
 import nick.dev.sina.app.annotation.RetrieveLogger;
+import nick.dev.sina.app.content.adapter.StatusActionListener;
 import nick.dev.sina.app.content.adapter.StatusAdapter;
 import nick.dev.sina.app.widget.ColorUtils;
 import nick.dev.sina.sdk.AccessTokenKeeper;
@@ -167,7 +168,7 @@ public class UserViewerActivity extends ScalpelAutoActivity {
     private void createAdapter() {
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        mStatusAdapter = new StatusAdapter(this, mStatusList.statusList, new StatusAdapter.StatusActionListener() {
+        mStatusAdapter = new StatusAdapter(this, mStatusList.statusList, new StatusActionListener() {
             @Override
             public void onStatusImageClick(View view, Status status) {
 
@@ -176,6 +177,11 @@ public class UserViewerActivity extends ScalpelAutoActivity {
             @Override
             public void onStatusItemClick(View view, Status status) {
 
+            }
+
+            @Override
+            public void onStatusAvatarClick(View view, Status status) {
+                
             }
         });
         mRecyclerView.setAdapter(mStatusAdapter);
