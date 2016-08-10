@@ -41,14 +41,14 @@ import com.sina.weibo.sdk.openapi.models.Status;
 import com.sina.weibo.sdk.openapi.models.StatusList;
 import com.sina.weibo.sdk.openapi.models.User;
 
-import dev.nick.imageloader.DisplayListener;
 import dev.nick.imageloader.ImageLoader;
+import dev.nick.imageloader.LoadingListener;
 import dev.nick.imageloader.display.DisplayOption;
 import dev.nick.imageloader.display.animator.FadeInImageAnimator;
 import dev.nick.imageloader.display.handler.BlurBitmapHandler;
 import dev.nick.imageloader.loader.result.BitmapResult;
-import dev.nick.logger.Logger;
-import dev.nick.logger.LoggerManager;
+import dev.nick.imageloader.logger.Logger;
+import dev.nick.imageloader.logger.LoggerManager;
 import nick.dev.sina.R;
 import nick.dev.sina.app.annotation.RetrieveLogger;
 import nick.dev.sina.app.content.adapter.StatusAdapter;
@@ -118,32 +118,38 @@ public class UserViewerActivity extends ScalpelAutoActivity {
 
         initApi();
 
-        ImageLoader.shared(this).display(status.user.avatar_hd, backDropView, new DisplayOption.Builder()
-                .bitmapHandler(new BlurBitmapHandler())
-                .imageAnimator(new FadeInImageAnimator()).build(), new DisplayListener.Stub() {
-            @Override
-            public void onComplete(@Nullable BitmapResult result) {
-                super.onComplete(result);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && result != null && result.result != null) {
-                    Palette.from(result.result).generate(new Palette.PaletteAsyncListener() {
-                        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-                        @Override
-                        public void onGenerated(Palette palette) {
-                            LoggerManager.getLogger(FeedImageViewerActivity.class).funcEnter();
-                            int defColor = ContextCompat.getColor(UserViewerActivity.this, R.color.primary);
-                            int themeColor = palette.getLightVibrantColor(defColor);
-                            int themeColorDark = ColorUtils.colorBurn(palette.getLightVibrantColor(defColor));
-                            getWindow().setStatusBarColor(themeColorDark);
-                            getWindow().setNavigationBarColor(themeColorDark);
-                            mCollapsingToolbar.setStatusBarScrimColor(themeColor);
-                            mCollapsingToolbar.setContentScrimColor(themeColor);
+        ImageLoader.shared().load()
+                .from(status.user.avatar_hd)
+                .into(backDropView)
+                .option(DisplayOption.builder()
+                        .bitmapHandler(new BlurBitmapHandler())
+                        .imageAnimator(new FadeInImageAnimator())
+                        .build())
+                .listener(new LoadingListener.Stub() {
+                    @Override
+                    public void onComplete(@Nullable BitmapResult result) {
+                        super.onComplete(result);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && result != null && result.result != null) {
+                            Palette.from(result.result).generate(new Palette.PaletteAsyncListener() {
+                                @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+                                @Override
+                                public void onGenerated(Palette palette) {
+                                    LoggerManager.getLogger(FeedImageViewerActivity.class).funcEnter();
+                                    int defColor = ContextCompat.getColor(UserViewerActivity.this, R.color.primary);
+                                    int themeColor = palette.getLightVibrantColor(defColor);
+                                    int themeColorDark = ColorUtils.colorBurn(palette.getLightVibrantColor(defColor));
+                                    getWindow().setStatusBarColor(themeColorDark);
+                                    getWindow().setNavigationBarColor(themeColorDark);
+                                    mCollapsingToolbar.setStatusBarScrimColor(themeColor);
+                                    mCollapsingToolbar.setContentScrimColor(themeColor);
+                                }
+                            });
                         }
-                    });
-                }
-            }
-        });
+                    }
+                })
+                .start();
 
-        ImageLoader.shared(this).display(status.user.avatar_hd, userProfileView);
+        ImageLoader.shared().load().from(status.user.avatar_hd).into(userProfileView).start();
 
         requestStatus(status.user);
     }

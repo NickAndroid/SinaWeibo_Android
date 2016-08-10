@@ -53,8 +53,8 @@ import dev.nick.imageloader.cache.CachePolicy;
 import dev.nick.imageloader.display.DisplayOption;
 import dev.nick.imageloader.display.animator.ResAnimator;
 import dev.nick.imageloader.loader.network.NetworkPolicy;
-import dev.nick.logger.Logger;
-import dev.nick.logger.LoggerManager;
+import dev.nick.imageloader.logger.Logger;
+import dev.nick.imageloader.logger.LoggerManager;
 import nick.dev.sina.R;
 import nick.dev.sina.app.annotation.RetrieveLogger;
 import nick.dev.sina.app.provider.SettingsProvider;
@@ -257,16 +257,8 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
         public StatusAdapter(List<Status> data, StatusActionListener statusActionListener) {
             this.mStatusActionListener = statusActionListener;
             this.data = data;
-            this.mImageLoader = ImageLoader.create(getContext(),
-                    LoaderConfig.builder()
-                            .networkPolicy(NetworkPolicy.builder()
-                                    .enableTrafficStats()
-                                    .build())
-                            .cachePolicy(CachePolicy.builder()
-                                    .enableStorgeStats()
-                                    .build())
-                            .build());
-            this.mDisplayOption = new DisplayOption.Builder()
+            this.mImageLoader = ImageLoader.shared();
+            this.mDisplayOption = DisplayOption.builder()
                     .viewMaybeReused()
                     .oneAfterOne()
                     .imageAnimator(ResAnimator.from(getContext(), R.anim.grow_fade_in_from_bottom))
@@ -303,10 +295,19 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
             holder.feedText.setText(status.text);
             holder.userNameView.setText(status.user.name);
 
-            mImageLoader.display(status.user.avatar_large, holder.userProfileView, mDisplayOption);
+            mImageLoader.load()
+                    .from(status.user.avatar_large)
+                    .into(holder.userProfileView)
+                    .option(mDisplayOption)
+                    .start();
+
             if (!TextUtils.isEmpty(status.bmiddle_pic)) {
                 holder.feedImageView.setVisibility(View.VISIBLE);
-                mImageLoader.display(status.bmiddle_pic, holder.feedImageView, mDisplayOption);
+                mImageLoader.load()
+                        .from(status.bmiddle_pic)
+                        .into(holder.feedImageView)
+                        .option(mDisplayOption)
+                        .start();
             } else {
                 holder.feedImageView.setVisibility(View.GONE);
             }
@@ -348,7 +349,11 @@ public class StatusFragment extends TransactionSafeFragment implements Scrollabl
 
             if (!TextUtils.isEmpty(status.bmiddle_pic)) {
                 holder.feedImageView.setVisibility(View.VISIBLE);
-                mImageLoader.display(status.bmiddle_pic, holder.feedImageView, mDisplayOption);
+                mImageLoader.load()
+                        .from(status.bmiddle_pic)
+                        .into(holder.feedImageView)
+                        .option(mDisplayOption)
+                        .start();
             } else {
                 holder.feedImageView.setVisibility(View.GONE);
             }

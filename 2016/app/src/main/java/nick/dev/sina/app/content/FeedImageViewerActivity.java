@@ -28,12 +28,12 @@ import com.nick.scalpel.ScalpelAutoActivity;
 import com.nick.scalpel.annotation.binding.FindView;
 import com.nick.scalpel.annotation.binding.OnClick;
 
-import dev.nick.imageloader.DisplayListener;
 import dev.nick.imageloader.ImageLoader;
+import dev.nick.imageloader.LoadingListener;
 import dev.nick.imageloader.display.DisplayOption;
 import dev.nick.imageloader.display.ImageQuality;
 import dev.nick.imageloader.loader.result.BitmapResult;
-import dev.nick.logger.LoggerManager;
+import dev.nick.imageloader.logger.LoggerManager;
 import nick.dev.sina.R;
 import nick.dev.sina.app.widget.ColorUtils;
 
@@ -58,31 +58,35 @@ public class FeedImageViewerActivity extends ScalpelAutoActivity {
 
         String url = getIntent().getStringExtra("url");
 
-        ImageLoader.shared(this)
-                .display(url, mImageView,
-                        new DisplayOption.Builder()
-                                .imageQuality(ImageQuality.RAW)
-                                .oneAfterOne()
-                                .build(), new DisplayListener.Stub() {
-                            @Override
-                            public void onComplete(@Nullable BitmapResult result) {
-                                LoggerManager.getLogger(FeedImageViewerActivity.class).funcEnter();
-                                if (result != null && result.result != null) {
-                                    Palette.from(result.result).generate(new Palette.PaletteAsyncListener() {
-                                        @Override
-                                        public void onGenerated(Palette palette) {
-                                            LoggerManager.getLogger(FeedImageViewerActivity.class).funcEnter();
-                                            int defColor = ContextCompat.getColor(FeedImageViewerActivity.this, R.color.primary_light);
-                                            int themeColor = ColorUtils.colorBurn(palette.getLightVibrantColor(defColor));
-                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                                getWindow().setStatusBarColor(themeColor);
-                                                getWindow().setNavigationBarColor(themeColor);
-                                            }
-                                        }
-                                    });
+        ImageLoader.shared()
+                .load()
+                .from(url)
+                .listener(new LoadingListener.Stub() {
+                    @Override
+                    public void onComplete(@Nullable BitmapResult result) {
+                        LoggerManager.getLogger(FeedImageViewerActivity.class).funcEnter();
+                        if (result != null && result.result != null) {
+                            Palette.from(result.result).generate(new Palette.PaletteAsyncListener() {
+                                @Override
+                                public void onGenerated(Palette palette) {
+                                    LoggerManager.getLogger(FeedImageViewerActivity.class).funcEnter();
+                                    int defColor = ContextCompat.getColor(FeedImageViewerActivity.this, R.color.primary_light);
+                                    int themeColor = ColorUtils.colorBurn(palette.getLightVibrantColor(defColor));
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                        getWindow().setStatusBarColor(themeColor);
+                                        getWindow().setNavigationBarColor(themeColor);
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
+                    }
+                })
+                .option(DisplayOption.builder()
+                        .imageQuality(ImageQuality.RAW)
+                        .oneAfterOne()
+                        .build())
+                .into(mImageView)
+                .start();
     }
 
     @Override

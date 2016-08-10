@@ -30,7 +30,7 @@ import com.sina.weibo.sdk.auth.WeiboAuthListener;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
 import com.sina.weibo.sdk.exception.WeiboException;
 
-import dev.nick.logger.Logger;
+import dev.nick.imageloader.logger.Logger;
 import nick.dev.sina.R;
 import nick.dev.sina.app.annotation.CalledByScalpel;
 import nick.dev.sina.app.annotation.RetrieveLogger;

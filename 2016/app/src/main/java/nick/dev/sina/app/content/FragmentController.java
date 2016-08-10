@@ -26,7 +26,7 @@ import com.nick.scalpel.annotation.opt.RetrieveBean;
 
 import java.util.List;
 
-import dev.nick.logger.LoggerManager;
+import dev.nick.imageloader.logger.LoggerManager;
 import nick.dev.sina.R;
 import nick.dev.sina.app.provider.SettingsProvider;
 

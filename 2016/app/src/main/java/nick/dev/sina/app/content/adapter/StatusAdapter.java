@@ -40,7 +40,7 @@ import dev.nick.imageloader.LoaderConfig;
 import dev.nick.imageloader.display.DisplayOption;
 import dev.nick.imageloader.display.animator.ResAnimator;
 import dev.nick.imageloader.loader.network.NetworkPolicy;
-import dev.nick.logger.LoggerManager;
+import dev.nick.imageloader.logger.LoggerManager;
 import nick.dev.sina.R;
 
 public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.FeedViewHolder> {
@@ -60,15 +60,13 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.FeedViewHo
         this.mContext = context;
         this.mStatusActionListener = statusActionListener;
         this.data = data;
-        this.mAvatarLoader = ImageLoader.create(mContext, LoaderConfig.builder()
-                .networkPolicy(NetworkPolicy.builder()
-                        .build()).build());
+        this.mAvatarLoader = ImageLoader.shared();
         this.mContentLoader = mAvatarLoader;
-        this.mContentDisplayOption = new DisplayOption.Builder()
+        this.mContentDisplayOption = DisplayOption.builder()
                 .viewMaybeReused()
                 .imageAnimator(ResAnimator.from(mContext, R.anim.grow_fade_in_from_bottom))
                 .build();
-        this.mAvatarDisplayOption = new DisplayOption.Builder()
+        this.mAvatarDisplayOption = DisplayOption.builder()
                 .viewMaybeReused()
                 .imageAnimator(ResAnimator.from(mContext, R.anim.grow_fade_in_from_bottom))
                 .build();
@@ -102,10 +100,18 @@ public class StatusAdapter extends RecyclerView.Adapter<StatusAdapter.FeedViewHo
         holder.itemView.setOnClickListener(new StatusItemListener(item, mStatusActionListener));
         holder.feedText.setText(item.text);
         holder.userNameView.setText(item.user.name);
-        mAvatarLoader.display(item.user.avatar_large, holder.userProfileView, mAvatarDisplayOption);
+        mAvatarLoader.load()
+                .from(item.user.avatar_large)
+                .option(mAvatarDisplayOption)
+                .into(holder.userProfileView)
+                .start();
         if (!TextUtils.isEmpty(item.bmiddle_pic)) {
             holder.feedImageView.setVisibility(View.VISIBLE);
-            mContentLoader.display(item.bmiddle_pic, holder.feedImageView, mContentDisplayOption);
+            mContentLoader.load()
+                    .from(item.bmiddle_pic)
+                    .option(mContentDisplayOption)
+                    .into(holder.feedImageView)
+                    .start();
         } else {
             holder.feedImageView.setVisibility(View.GONE);
         }

@@ -43,7 +43,7 @@ import com.sina.weibo.sdk.openapi.models.Status;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.nick.logger.Logger;
+import dev.nick.imageloader.logger.Logger;
 import nick.dev.sina.R;
 import nick.dev.sina.app.annotation.RetrieveLogger;
 import nick.dev.sina.app.provider.SettingsProvider;

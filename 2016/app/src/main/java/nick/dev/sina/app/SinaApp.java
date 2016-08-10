@@ -35,7 +35,10 @@ import com.nick.scalpel.core.utils.ReflectionUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
-import dev.nick.logger.LoggerManager;
+import dev.nick.imageloader.ImageLoader;
+import dev.nick.imageloader.LoaderConfig;
+import dev.nick.imageloader.cache.CachePolicy;
+import dev.nick.imageloader.logger.LoggerManager;
 import nick.dev.sina.R;
 import nick.dev.sina.app.annotation.RetrieveApp;
 import nick.dev.sina.app.annotation.RetrieveLogger;
@@ -51,6 +54,7 @@ public class SinaApp extends ScalpelApplication {
         super.onCreate();
         LoggerManager.setTagPrefix(getClass().getSimpleName());
         LoggerManager.setDebugLevel(Log.VERBOSE);
+        ImageLoader.createShared(this);
     }
 
     @Override
